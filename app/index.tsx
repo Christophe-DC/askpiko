@@ -32,7 +32,7 @@ export default function HomeScreen() {
   const [step1Phase, setStep1Phase] = useState<'permission' | 'confirmation' | 'complete'>('permission');
   const [microphonePermissionGranted, setMicrophonePermissionGranted] = useState(false);
 
-  const { requestMicrophonePermission, requestDiagnosticPermissions } = usePermissions();
+  const { requestMicrophonePermission, checkMicrophonePermission, requestDiagnosticPermissions } = usePermissions();
 
   const {
     currentStep,
