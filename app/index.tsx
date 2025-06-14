@@ -217,7 +217,10 @@ export default function HomeScreen() {
     startDiagnostic(true);
     setStep1Phase('confirmation');
 
-    await speakText("Great! I now have access to your microphone. Are you ready to begin the diagnostic?");
+    // Agent will ask for confirmation
+        setTimeout(() => {
+          speakText("Great! I now have access to your microphone. Are you ready to begin the diagnostic?");
+        }, 2000);
 
   } catch (error) {
     console.error('❌ Failed to start voice conversation:', error);
