@@ -189,7 +189,7 @@ export default function HomeScreen() {
     setVoiceConversationStarted(true);
 
     // 1. Vérifie si le micro est déjà autorisé
-    const micPermissionAlreadyGranted = await requestMicrophonePermission({ checkOnly: true });
+    const micPermissionAlreadyGranted = await checkMicrophonePermission();
     setMicrophonePermissionGranted(micPermissionAlreadyGranted);
 
     if (!micPermissionAlreadyGranted) {
