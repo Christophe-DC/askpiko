@@ -202,6 +202,7 @@ export function usePermissions() {
     isLoading,
     requestSinglePermission,
     requestMicrophonePermission,
+    checkMicrophonePermission,
     requestDiagnosticPermissions,
     recheckPermissions,
     hasRequestedPermissions,
