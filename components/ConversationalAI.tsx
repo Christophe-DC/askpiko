@@ -59,7 +59,7 @@ export default function ConversationalAI({
   onError,
   autoStart = false,
 }: {
-  dom?: import('expo/dom').DOMProps;
+  dom: DOMProps;
   onUserMessage?: (message: string) => void;
   onAgentMessage?: (message: string) => void;
   onModeChange?: (mode: 'listening' | 'speaking' | 'thinking') => void;
