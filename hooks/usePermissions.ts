@@ -116,7 +116,7 @@ export function usePermissions() {
   };
 
   const checkMicrophonePermission = async () => {
-  return await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO);
+    return await Audio.getPermissionsAsync();
 };
 
   // Request microphone permission specifically for voice conversation
