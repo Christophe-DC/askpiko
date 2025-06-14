@@ -43,7 +43,7 @@ export default function HomeScreen() {
     nextStep,
     completeStep,
     skipStep,
-    completeDiagnostic,@&  
+    completeDiagnostic,
     resetDiagnostic,
     setAwaitingVoiceResponse,
     processVoiceCommand,
