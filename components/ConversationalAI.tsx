@@ -196,6 +196,7 @@ export default function ConversationalAI({
       const deviceInfo = await diagnosticTools.get_device_info();
 
       console.log('clientTools:', clientTools);
+      
       // Start the conversation with mobile-optimized settings
       await conversation.startSession({
         agentId: agentId,
