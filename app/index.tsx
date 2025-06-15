@@ -231,6 +231,8 @@ export default function HomeScreen() {
     },
 
     updateColorToShow: async (colorName: string): Promise<string> => {
+      
+    console.log('updateColorToShow:', colorName);
       if(colorName === 'undefined') {
         return  'Color error';
       }
