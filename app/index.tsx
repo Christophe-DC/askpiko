@@ -147,7 +147,7 @@ export default function HomeScreen() {
 
     get_device_info: async (): Promise<string> => {
       try {
-        const userAgent = navigator.userAgent.toLowerCase();
+        const userAgent = navigator.userAgent?.toLowerCase();
         const mobileKeywords = [
           'android',
           'iphone',
@@ -158,7 +158,7 @@ export default function HomeScreen() {
           'mobile',
         ];
         const isMobile =
-          mobileKeywords.some((keyword) => userAgent.includes(keyword)) ||
+          mobileKeywords.some((keyword) => userAgent?.includes(keyword)) ||
           window.innerWidth <= 768 ||
           'ontouchstart' in window ||
           navigator.maxTouchPoints > 0;
