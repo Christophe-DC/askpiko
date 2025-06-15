@@ -234,7 +234,6 @@ export default function ConversationalAI({
     recordButtonPressed: recordButtonPressed,
     recordSensorShake: recordSensorShake,
     recordCameraPhoto: recordCameraPhoto,
-  };
         } /* {
           getDeviceInfos: diagnosticTools.get_device_info,
           updateDiagnosticStep: async ({ step }) => {
