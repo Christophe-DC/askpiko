@@ -983,7 +983,7 @@ export default function HomeScreen() {
         {/* Voice Conversation Component */}
         {voiceModeEnabled && voiceConversationStarted && (
         
-  console.log('init clientTools:', clientTools);
+  console.log('diagnosticTools:', diagnosticTools);
           <View style={styles.hiddenVoiceContainer}>
             <ConversationalAI
               dom={{ style: styles.hiddenDomComponent }}
