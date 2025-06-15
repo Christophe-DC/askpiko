@@ -217,6 +217,7 @@ export default function ConversationalAI({
         agentId: agentId,
         dynamicVariables: {
           platform: platformInfo,
+          microphonePermission: checkMicrophonePermission,
           userAgent: navigator.userAgent,
           timestamp: new Date().toISOString(),
           audioEnabled: audioEnabled.toString(),
