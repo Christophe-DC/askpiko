@@ -190,7 +190,7 @@ export default function HomeScreen() {
       }
     },
 
-    updateDiagnosticStep: async (nextStep: number): Promise<string> => {
+    updateDiagnosticStep: async (nextStep: string): Promise<string> => {
       console.log(`🔄 Moving to step: ${nextStep}`);
 
       // Ajouter le résultat de l'étape précédente
@@ -198,35 +198,10 @@ export default function HomeScreen() {
         addDiagnosticResult(currentStep, true, 'Test completed successfully');
       }
 
-      let nextDiagStep = currentStep || 'introduction';
-      switch (nextStep) {
-        case 1:
-          nextDiagStep = 'introduction';
-          break;
-        case 2:
-          nextDiagStep = 'device_detection';
-          break;
-        case 3:
-          nextDiagStep = 'display_color';
-          break;
-        case 4:
-          nextDiagStep = 'button_test';
-          break;
-        case 5:
-          nextDiagStep = 'microphone_test';
-        case 6:
-          nextDiagStep = 'sensor_test';
-        case 7:
-          nextDiagStep = 'camera_test';
-        case 8:
-          nextDiagStep = 'summary';
-          break;
-      }
-
-      setCurrentStep(nextDiagStep as DiagnosticStep);
+      setCurrentStep(nextStep as DiagnosticStep);
 
       // Préparer l'étape suivante
-      switch (nextDiagStep as DiagnosticStep) {
+      switch (nextStep as DiagnosticStep) {
         case 'display_color':
           setupColorTest();
           break;
@@ -946,8 +921,6 @@ export default function HomeScreen() {
 
   const renderDiagnosticFlow = () => {
     const progress = getStepProgress();
-    
-  console.log('diagnosticTools:', diagnosticTools);
 
     return (
       <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -984,7 +957,6 @@ export default function HomeScreen() {
 
         {/* Voice Conversation Component */}
         {voiceModeEnabled && voiceConversationStarted && (
-        
           <View style={styles.hiddenVoiceContainer}>
             <ConversationalAI
               dom={{ style: styles.hiddenDomComponent }}
@@ -992,19 +964,7 @@ export default function HomeScreen() {
               onAgentMessage={handleAgentMessage}
               onModeChange={handleModeChange}
               autoStart={true}
-              clientTools={{
-                ''requestMicrophonePermission'': requestMicrophonePermission,
-                'checkMicrophonePermission': diagnosticTools.test_microphone,
-                'getDeviceInfos': diagnosticTools.get_device_info,
-                'updateDiagnosticStep': diagnosticTools.updateDiagnosticStep,
-                'updatePhraseToRead': diagnosticTools.updatePhraseToRead,
-                'updateColorToShow': diagnosticTools.updateColorToShow,
-                'recordGridCellCompleted':
-                  diagnosticTools.recordGridCellCompleted,
-                'recordButtonPressed': diagnosticTools.recordButtonPressed,
-                'recordSensorShake': diagnosticTools.recordSensorShake,
-                'recordCameraPhoto': diagnosticTools.recordCameraPhoto,
-              }}
+              clientTools={clientTools}
             />
           </View>
         )}
