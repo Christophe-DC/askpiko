@@ -37,6 +37,7 @@ export const diagnosticTools = {
     touchSupport: boolean;
   }> => {
     try {
+      console.log('get_device_info');
       const userAgent = navigator.userAgent.toLowerCase();
       const mobileKeywords = ['android', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone', 'mobile'];
       const isMobile = mobileKeywords.some(keyword => userAgent.includes(keyword)) || 

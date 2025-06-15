@@ -57,6 +57,7 @@ export default function ConversationalAI({
   onConnect,
   onDisconnect,
   onError,
+  clientTools,
   autoStart = false,
 }: {
   dom: DOMProps;
@@ -66,6 +67,7 @@ export default function ConversationalAI({
   onConnect?: () => void;
   onDisconnect?: () => void;
   onError?: (error: Error) => void;
+  clientTools: any;
   autoStart?: boolean;
 }) {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -205,7 +207,12 @@ export default function ConversationalAI({
           screenResolution: deviceInfo.screenResolution,
           language: deviceInfo.language,
         },
-        clientTools: {
+        clientTools: clientTools /* {
+          getDeviceInfos: diagnosticTools.get_device_info,
+          updateDiagnosticStep: async ({ step }) => {
+            console.log(step);
+          },
+
           get_battery_level: diagnosticTools.get_battery_level,
           get_device_info: diagnosticTools.get_device_info,
           test_microphone: diagnosticTools.test_microphone,
@@ -213,7 +220,7 @@ export default function ConversationalAI({
           flash_screen: diagnosticTools.flash_screen,
           vibrate_device: diagnosticTools.vibrate_device,
           get_network_info: diagnosticTools.get_network_info,
-        },
+        },*/,
         overrides: {
           /*agent: {
             firstMessage:
