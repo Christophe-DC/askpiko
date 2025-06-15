@@ -76,7 +76,6 @@ export default function ConversationalAI({
     recordButtonPressed:  () => string;
     recordSensorShake:  () => string;
     recordCameraPhoto:  () => string;
-  };
 
   autoStart?: boolean;
 }) {
