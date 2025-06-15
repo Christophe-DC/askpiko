@@ -57,7 +57,15 @@ export default function ConversationalAI({
   onConnect,
   onDisconnect,
   onError,
-  clientTools,
+    checkMicrophonePermission,
+    getDeviceInfos,
+    updateDiagnosticStep,
+    updatePhraseToRead,
+    updateColorToShow,
+    recordGridCellCompleted,
+    recordButtonPressed,
+    recordSensorShake,
+    recordCameraPhoto,
   autoStart = false,
 }: {
   dom: DOMProps;
