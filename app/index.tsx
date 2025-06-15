@@ -233,16 +233,16 @@ export default function HomeScreen() {
     updateColorToShow: async (colorName: string): Promise<string> => {
       
     console.log('updateColorToShow:', colorName);
-      if(colorName === 'undefined') {
+      if(colorName === 'undefined' || colorName.color === 'undefined') {
         return  'Color error';
       }
       const colorIndex = DISPLAY_COLORS.findIndex(
-        (c) => c.name.toLowerCase() === colorName.toLowerCase()
+        (c) => c.name.toLowerCase() === colorName.color.toLowerCase()
       );
       if (colorIndex !== -1) {
         setCurrentColorTest(colorIndex);
       }
-      return `Color set to: ${colorName}`;
+      return `Color set to: ${colorName.color}`;
     },
 
     recordGridCellCompleted: async (cellIndex: string): Promise<string> => {
