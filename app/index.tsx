@@ -993,7 +993,7 @@ export default function HomeScreen() {
               onModeChange={handleModeChange}
               autoStart={true}
               clientTools={{
-                'requestMicrophonePermission': requestMicrophonePermission,
+                ''requestMicrophonePermission'': requestMicrophonePermission,
                 'checkMicrophonePermission': diagnosticTools.test_microphone,
                 'getDeviceInfos': diagnosticTools.get_device_info,
                 'updateDiagnosticStep': diagnosticTools.updateDiagnosticStep,
