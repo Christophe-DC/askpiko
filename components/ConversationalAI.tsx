@@ -83,6 +83,8 @@ export default function ConversationalAI({
   const [manualStartRequested, setManualStartRequested] = useState(false);
   const maxRetries = 3;
 
+  console.log('init clientTools:', clientTools);
+  
   // Detect mobile device with enhanced detection
   useEffect(() => {
     const checkMobile = () => {
