@@ -224,7 +224,19 @@ export default function ConversationalAI({
           screenResolution: deviceInfo.screenResolution,
           language: deviceInfo.language,
         },
-        clientTools: clientTools /* {
+        clientTools: {
+          const clientTools = {
+    checkMicrophonePermission: checkMicrophonePermission,
+    getDeviceInfos: getDeviceInfos,
+    updateDiagnosticStep: updateDiagnosticStep,
+    updatePhraseToRead: updatePhraseToRead,
+    updateColorToShow: updateColorToShow,
+    recordGridCellCompleted: recordGridCellCompleted,
+    recordButtonPressed: recordButtonPressed,
+    recordSensorShake: recordSensorShake,
+    recordCameraPhoto: recordCameraPhoto,
+  };
+        } /* {
           getDeviceInfos: diagnosticTools.get_device_info,
           updateDiagnosticStep: async ({ step }) => {
             console.log(step);
