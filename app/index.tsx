@@ -946,6 +946,8 @@ export default function HomeScreen() {
 
   const renderDiagnosticFlow = () => {
     const progress = getStepProgress();
+    
+  console.log('diagnosticTools:', diagnosticTools);
 
     return (
       <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -983,7 +985,6 @@ export default function HomeScreen() {
         {/* Voice Conversation Component */}
         {voiceModeEnabled && voiceConversationStarted && (
         
-  console.log('diagnosticTools:', diagnosticTools);
           <View style={styles.hiddenVoiceContainer}>
             <ConversationalAI
               dom={{ style: styles.hiddenDomComponent }}
