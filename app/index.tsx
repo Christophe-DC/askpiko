@@ -267,7 +267,6 @@ export default function HomeScreen() {
   };
 
   
-
   const clientTools = {
     checkMicrophonePermission: diagnosticTools.test_microphone,
     getDeviceInfos: diagnosticTools.get_device_info,
