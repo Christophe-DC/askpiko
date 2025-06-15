@@ -67,18 +67,15 @@ export default function ConversationalAI({
   onConnect?: () => void;
   onDisconnect?: () => void;
   onError?: (error: Error) => void;
-  clientTools: Record<string, (parameters: any) => Promise<string | number | void> | string | number | void>;
-
-  
-    checkMicrophonePermission: () => string,
-    getDeviceInfos:  () => string,
-    updateDiagnosticStep:  () => number,
-    updatePhraseToRead: diagnosticTools.updatePhraseToRead,
-    updateColorToShow: diagnosticTools.updateColorToShow,
-    recordGridCellCompleted: diagnosticTools.recordGridCellCompleted,
-    recordButtonPressed: diagnosticTools.recordButtonPressed,
-    recordSensorShake: diagnosticTools.recordSensorShake,
-    recordCameraPhoto: diagnosticTools.recordCameraPhoto,
+    checkMicrophonePermission: () => string;
+    getDeviceInfos:  () => string;
+    updateDiagnosticStep:  () => number;
+    updatePhraseToRead:  () => string;
+    updateColorToShow:  () => string;
+    recordGridCellCompleted:  () => string;
+    recordButtonPressed:  () => string;
+    recordSensorShake:  () => string;
+    recordCameraPhoto:  () => string;
   };
 
   autoStart?: boolean;
