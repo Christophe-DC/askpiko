@@ -173,9 +173,9 @@ export default function ConversationalAI({
       // Request microphone permission
       if (!hasPermission) {
         const granted = await requestMicrophonePermission();
-        if (!granted) {
+        /*if (!granted) {
           throw new Error('Microphone permission is required for voice conversation');
-        }
+        }*/
         setHasPermission(true);
       }
 
