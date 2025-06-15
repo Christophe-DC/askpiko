@@ -990,16 +990,17 @@ export default function HomeScreen() {
               onModeChange={handleModeChange}
               autoStart={true}
               clientTools={{
-                checkMicrophonePermission: diagnosticTools.test_microphone,
-                getDeviceInfos: diagnosticTools.get_device_info,
-                updateDiagnosticStep: diagnosticTools.updateDiagnosticStep,
-                updatePhraseToRead: diagnosticTools.updatePhraseToRead,
-                updateColorToShow: diagnosticTools.updateColorToShow,
-                recordGridCellCompleted:
+                'requestMicrophonePermission': requestMicrophonePermission,
+                'checkMicrophonePermission': diagnosticTools.test_microphone,
+                'getDeviceInfos': diagnosticTools.get_device_info,
+                'updateDiagnosticStep': diagnosticTools.updateDiagnosticStep,
+                'updatePhraseToRead': diagnosticTools.updatePhraseToRead,
+                'updateColorToShow': diagnosticTools.updateColorToShow,
+                'recordGridCellCompleted':
                   diagnosticTools.recordGridCellCompleted,
-                recordButtonPressed: diagnosticTools.recordButtonPressed,
-                recordSensorShake: diagnosticTools.recordSensorShake,
-                recordCameraPhoto: diagnosticTools.recordCameraPhoto,
+                'recordButtonPressed': diagnosticTools.recordButtonPressed,
+                'recordSensorShake': diagnosticTools.recordSensorShake,
+                'recordCameraPhoto': diagnosticTools.recordCameraPhoto,
               }}
             />
           </View>
