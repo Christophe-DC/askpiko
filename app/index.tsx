@@ -266,6 +266,20 @@ export default function HomeScreen() {
     },
   };
 
+  
+
+  const clientTools = {
+    checkMicrophonePermission: diagnosticTools.test_microphone,
+    getDeviceInfos: diagnosticTools.get_device_info,
+    updateDiagnosticStep: diagnosticTools.updateDiagnosticStep,
+    updatePhraseToRead: diagnosticTools.updatePhraseToRead,
+    updateColorToShow: diagnosticTools.updateColorToShow,
+    recordGridCellCompleted: diagnosticTools.recordGridCellCompleted,
+    recordButtonPressed: diagnosticTools.recordButtonPressed,
+    recordSensorShake: diagnosticTools.recordSensorShake,
+    recordCameraPhoto: diagnosticTools.recordCameraPhoto,
+  };
+
   // Handlers pour la conversation vocale
   function handleUserMessage(message: string) {
     console.log('🗣️ User said:', message);
