@@ -978,8 +978,6 @@ export default function HomeScreen() {
               onAgentMessage={handleAgentMessage}
               onModeChange={handleModeChange}
               autoStart={true}
-              clientTools={clientTools}
-              const clientTools = {
     checkMicrophonePermission={diagnosticTools.test_microphone}
     getDeviceInfos={diagnosticTools.get_device_info}
     updateDiagnosticStep={diagnosticTools.updateDiagnosticStep}
@@ -989,7 +987,6 @@ export default function HomeScreen() {
     recordButtonPressed={diagnosticTools.recordButtonPressed}
     recordSensorShake={diagnosticTools.recordSensorShake}
     recordCameraPhoto={diagnosticTools.recordCameraPhoto}
-  };
             />
           </View>
         )}
