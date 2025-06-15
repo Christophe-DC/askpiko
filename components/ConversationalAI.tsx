@@ -225,6 +225,7 @@ export default function ConversationalAI({
           language: deviceInfo.language,
         },
         clientTools: {
+          requestMicrophonePermission:requestMicrophonePermission
     checkMicrophonePermission: checkMicrophonePermission,
     getDeviceInfos: getDeviceInfos,
     updateDiagnosticStep: updateDiagnosticStep,
