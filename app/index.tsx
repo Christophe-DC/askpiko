@@ -935,7 +935,6 @@ export default function HomeScreen() {
   const renderDiagnosticFlow = () => {
     const progress = getStepProgress();
     console.log('diagnosticTools:', diagnosticTools);
-    console.log('clientTools:', clientTools);
 
     return (
       <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -980,6 +979,17 @@ export default function HomeScreen() {
               onModeChange={handleModeChange}
               autoStart={true}
               clientTools={clientTools}
+              const clientTools = {
+    checkMicrophonePermission={diagnosticTools.test_microphone}
+    getDeviceInfos={diagnosticTools.get_device_info}
+    updateDiagnosticStep={diagnosticTools.updateDiagnosticStep}
+    updatePhraseToRead={diagnosticTools.updatePhraseToRead}
+    updateColorToShow={diagnosticTools.updateColorToShow}
+    recordGridCellCompleted={diagnosticTools.recordGridCellCompleted}
+    recordButtonPressed={diagnosticTools.recordButtonPressed}
+    recordSensorShake={diagnosticTools.recordSensorShake}
+    recordCameraPhoto={diagnosticTools.recordCameraPhoto}
+  };
             />
           </View>
         )}
