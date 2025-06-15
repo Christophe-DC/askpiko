@@ -67,7 +67,7 @@ export default function ConversationalAI({
   onConnect?: () => void;
   onDisconnect?: () => void;
   onError?: (error: Error) => void;
-  clientTools: any;
+  clientTools: Record<string, (parameters: any) => Promise<string | number | void> | string | number | void>;
   autoStart?: boolean;
 }) {
   const [isInitialized, setIsInitialized] = useState(false);
