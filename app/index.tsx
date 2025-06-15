@@ -232,7 +232,7 @@ export default function HomeScreen() {
 
     updateColorToShow: async (colorName: string): Promise<string> => {
       if(colorName === 'undefined') {
-        return  `Color error';
+        return  'Color error';
       }
       const colorIndex = DISPLAY_COLORS.findIndex(
         (c) => c.name.toLowerCase() === colorName.toLowerCase()
