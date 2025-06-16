@@ -146,7 +146,7 @@ export default function HomeScreen() {
       }
     },
 
-    export async function get_device_info(): Promise<{
+    get_device_info(): Promise<{
   userAgent: string;
   platform: string;
   language: string;
