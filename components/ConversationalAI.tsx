@@ -109,7 +109,7 @@ export default forwardRef(function ConversationalAI({
     recordCameraPhoto:  () => string;
   autoStart?: boolean;
   isVisible?: boolean
-}) {
+}, ref) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [currentMode, setCurrentMode] = useState<'listening' | 'speaking' | 'thinking' | 'idle'>('idle');
   const [hasPermission, setHasPermission] = useState(false);
