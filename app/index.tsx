@@ -85,6 +85,13 @@ const MICROPHONE_PHRASES = [
   'Technology makes our lives easier',
 ];
 
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+
+const TOTAL_ROWS = 10;
+const TOTAL_COLUMNS = 5;
+const TOTAL_CELLS = TOTAL_ROWS * TOTAL_COLUMNS;
+
 export default function HomeScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -114,6 +121,7 @@ export default function HomeScreen() {
   const [colorTestColors, setColorTestColors] = useState<typeof DISPLAY_COLORS>(
     []
   );
+    const [tappedCells, setTappedCells] = useState<boolean[]>(Array(TOTAL_CELLS).fill(false));
   const [gridTestCompleted, setGridTestCompleted] = useState<boolean[]>([]);
   const [buttonTestProgress, setButtonTestProgress] = useState<string[]>([]);
   const [phraseToRead, setPhraseToRead] = useState('');
