@@ -463,7 +463,7 @@ export default function HomeScreen() {
   }, [currentStep, sensorTestCompleted]);
 
    useEffect(() => {
-  handleMicrophonePermissionRequest
+  handleMicrophonePermissionRequest()
       }, []);
   
   // Détection mobile
