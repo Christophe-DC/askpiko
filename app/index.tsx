@@ -192,15 +192,18 @@ export default function HomeScreen() {
           nextDiagStep = 'display_color';
           break;
         case 4:
-          nextDiagStep = 'button_test';
+          nextDiagStep = 'display_grid';
           break;
         case 5:
-          nextDiagStep = 'microphone_test';
+          nextDiagStep = 'button_test';
+          break;
         case 6:
-          nextDiagStep = 'sensor_test';
+          nextDiagStep = 'microphone_test';
         case 7:
-          nextDiagStep = 'camera_test';
+          nextDiagStep = 'sensor_test';
         case 8:
+          nextDiagStep = 'camera_test';
+        case 9:
           nextDiagStep = 'summary';
           break;
       }
