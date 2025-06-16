@@ -595,7 +595,7 @@ export default forwardRef(function ConversationalAI({
       )}
     </View>
 ) : null;
-}
+})
 
 const styles = StyleSheet.create({
   container: {
