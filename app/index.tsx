@@ -146,49 +146,69 @@ export default function HomeScreen() {
     },
 
     get_device_info: async (): Promise<string> => {
-      try {
-        const userAgent = navigator.userAgent?.toLowerCase();
-        const mobileKeywords = [
-          'android',
-          'iphone',
-          'ipad',
-          'ipod',
-          'blackberry',
-          'windows phone',
-          'mobile',
-        ];
-        const isMobile =
-          mobileKeywords.some((keyword) => userAgent?.includes(keyword)) ||
-          window.innerWidth <= 768 ||
-          'ontouchstart' in window ||
-          navigator.maxTouchPoints > 0;
+  try {
+    if (typeof navigator === 'undefined') {
+      throw new Error('navigator is not defined');
+    }
 
-        const info = {
-          userAgent: navigator.userAgent,
-          platform: navigator.platform,
-          language: navigator.language,
-          screenResolution: `${screen.width}x${screen.height}`,
-          colorDepth: screen.colorDepth,
-          isMobile,
-          touchSupport:
-            'ontouchstart' in window || navigator.maxTouchPoints > 0,
-        };
+    const userAgent = navigator.userAgent?.toLowerCase() ?? '';
+    const platform = navigator.platform ?? 'unknown';
+    const language = navigator.language ?? 'en-US';
 
-        setDeviceInfo(info);
-        return JSON.stringify(info);
-      } catch (error) {
-        console.error('Failed to get device info:', error);
-        return JSON.stringify({
-          userAgent: 'unknown',
-          platform: 'unknown',
-          language: 'en-US',
-          screenResolution: '0x0',
-          colorDepth: 24,
-          isMobile: false,
-          touchSupport: false,
-        });
-      }
-    },
+    const mobileKeywords = [
+      'android',
+      'iphone',
+      'ipad',
+      'ipod',
+      'blackberry',
+      'windows phone',
+      'mobile',
+    ];
+    const isMobile =
+      mobileKeywords.some((keyword) => userAgent.includes(keyword)) ||
+      (typeof window !== 'undefined' && window.innerWidth <= 768) ||
+      ('ontouchstart' in (typeof window !== 'undefined' ? window : {})) ||
+      (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0);
+
+    const screenResolution =
+      typeof screen !== 'undefined'
+        ? `${screen.width}x${screen.height}`
+        : '0x0';
+
+    const colorDepth =
+      typeof screen !== 'undefined' ? screen.colorDepth : 24;
+
+    const touchSupport =
+      typeof window !== 'undefined' && 'ontouchstart' in window ||
+      (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0);
+
+    const info = {
+      userAgent: navigator.userAgent ?? 'unknown',
+      platform,
+      language,
+      screenResolution,
+      colorDepth,
+      isMobile,
+      touchSupport,
+    };
+
+    console.log('get_device_info:', info);
+    setDeviceInfo(info);
+    return JSON.stringify(info);
+  } catch (error) {
+    console.error('Failed to get device info:', error);
+    return JSON.stringify({
+      userAgent: 'unknown',
+      platform: 'unknown',
+      language: 'en-US',
+      screenResolution: '0x0',
+      colorDepth: 24,
+      isMobile: false,
+      touchSupport: false,
+    });
+  }
+},
+
 
     updateDiagnosticStep: async (nextStep: string): Promise<string> => {
       console.log(`🔄 Moving to step: ${nextStep}`);
