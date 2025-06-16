@@ -189,6 +189,7 @@ export default function ConversationalAI({
         }
       }
       
+      console.log('check mic permission:', hasPermission);
       // Request microphone permission
       if (!hasPermission) {
         const granted = await requestMicrophonePermission();
