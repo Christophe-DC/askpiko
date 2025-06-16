@@ -654,20 +654,6 @@ export default function HomeScreen() {
             >
               Piko is introducing himself and checking microphone permissions.
             </Typography>
-
-            {!microphonePermissionGranted && (
-              <Button
-                title={
-                  isCheckingPermissions
-                    ? 'Checking...'
-                    : 'Grant Microphone Permission'
-                }
-                onPress={handleMicrophonePermissionRequest}
-                disabled={isCheckingPermissions}
-                icon={<Mic size={20} color="#FFFFFF" />}
-                style={styles.permissionButton}
-              />
-            )}
           </Card>
         );
 
