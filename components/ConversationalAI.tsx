@@ -213,13 +213,14 @@ export default function ConversationalAI({
       // Get device platform info
       const platformInfo = isMobile ? 'mobile' : 'web';
       const deviceInfo = await diagnosticTools.get_device_info();
+      const microphonePermission = await requestMicrophonePermission;
       
       // Start the conversation with mobile-optimized settings
       await conversation.startSession({
         agentId: agentId,
         dynamicVariables: {
           platform: platformInfo,
-          microphonePermission: requestMicrophonePermission,
+          microphonePermission: microphonePermission,
           userAgent: navigator.userAgent,
           timestamp: new Date().toISOString(),
           audioEnabled: audioEnabled.toString(),
