@@ -9,6 +9,7 @@ import { Audio } from 'expo-av';
 
 async function requestMicrophonePermission() {
   try {
+    console.log('requestMicrophonePermission');
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     stream.getTracks().forEach(track => track.stop());
     console.log('✅ Microphone permission granted');
