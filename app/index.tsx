@@ -465,6 +465,7 @@ export default function HomeScreen() {
    useEffect(() => {
   handleMicrophonePermissionRequest
       }, []);
+  
   // Détection mobile
   useEffect(() => {
     const checkMobile = () => {
