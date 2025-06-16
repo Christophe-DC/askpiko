@@ -67,6 +67,7 @@ export default function ConversationalAI({
     recordSensorShake,
     recordCameraPhoto,
   autoStart = false,
+  
 }: {
   dom: DOMProps;
   onUserMessage?: (message: string) => void;
@@ -84,7 +85,6 @@ export default function ConversationalAI({
     recordButtonPressed:  () => string;
     recordSensorShake:  () => string;
     recordCameraPhoto:  () => string;
-
   autoStart?: boolean;
 }) {
   const [isInitialized, setIsInitialized] = useState(false);
