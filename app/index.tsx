@@ -285,6 +285,7 @@ export default function HomeScreen() {
         (c) => c.name.toLowerCase() === colorName.color.toLowerCase()
       );
       if (colorIndex !== -1) {
+    console.log('colorIndex:', colorIndex);
         setCurrentColorTest(colorIndex);
       }
       return `Color set to: ${colorName.color}`;
@@ -729,10 +730,10 @@ export default function HomeScreen() {
 
       case 'display_color':
         if (
-          colorTestColors.length > 0 &&
+          currentColorTest > 0 &&
           currentColorTest < colorTestColors.length
         ) {
-          const currentColor = colorTestColors[currentColorTest];
+          const currentColor = DISPLAY_COLORS[currentColorTest];
           return (
             <View
               style={[
