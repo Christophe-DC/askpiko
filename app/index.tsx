@@ -975,6 +975,7 @@ export default function HomeScreen() {
 
         <View style={styles.hiddenVoiceContainer}>
           <ConversationalAI
+            ref={aiRef}
             dom={{ style: styles.hiddenDomComponent }}
             onUserMessage={handleUserMessage}
             onAgentMessage={handleAgentMessage}
