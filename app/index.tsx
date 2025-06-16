@@ -194,10 +194,10 @@ export default function HomeScreen() {
 
     console.log('get_device_info:', info);
     setDeviceInfo(info);
-    return JSON.stringify(info);
+    return info;
   } catch (error) {
     console.error('Failed to get device info:', error);
-    return JSON.stringify({
+    return {
       userAgent: 'unknown',
       platform: 'unknown',
       language: 'en-US',
@@ -205,7 +205,7 @@ export default function HomeScreen() {
       colorDepth: 24,
       isMobile: false,
       touchSupport: false,
-    });
+    };
   }
 },
 
