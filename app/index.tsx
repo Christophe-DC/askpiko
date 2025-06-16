@@ -779,29 +779,7 @@ export default function HomeScreen() {
             >
               Press the following buttons when Piko asks:
             </Typography>
-            <View style={styles.buttonTestContainer}>
-              {expectedButtons.map((button, index) => (
-                <View key={button} style={styles.buttonTestItem}>
-                  <View style={styles.buttonTestIcon}>
-                    {button === 'Volume Up' && (
-                      <Volume1 size={24} color={colors.primary} />
-                    )}
-                    {button === 'Volume Down' && (
-                      <VolumeX size={24} color={colors.primary} />
-                    )}
-                    {button === 'Power' && (
-                      <Power size={24} color={colors.primary} />
-                    )}
-                  </View>
-                  <Typography variant="body" style={styles.buttonTestLabel}>
-                    {button}
-                  </Typography>
-                  {buttonTestProgress.includes(button) && (
-                    <CheckCircle size={20} color={colors.success} />
-                  )}
-                </View>
-              ))}
-            </View>
+            
           </Card>
         );
 
