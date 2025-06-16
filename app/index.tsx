@@ -53,15 +53,6 @@ interface DiagnosticResult {
 }
 
 interface DeviceInfo {
-  userAgent: string;
-  platform: string;
-  language: string;
-  screenResolution: string;
-  colorDepth: number;
-  isMobile: boolean;
-  touchSupport: boolean;
-}
- interface DeviceInfo {
   brand: string | null;
   manufacturer: string;
   modelName: string | null;
@@ -72,6 +63,7 @@ interface DeviceInfo {
   totalMemory: number;
   supportedCpuArchitectures: string[];
   isDevice: boolean;
+  screenResolution: string;
 }
 
 // Configuration des couleurs pour le test d'affichage
@@ -159,67 +151,26 @@ export default function HomeScreen() {
       }
     },
 
-    async get_device_info(): Promise<{
-  userAgent: string;
-  platform: string;
-  language: string;
-  screenResolution: string;
-  colorDepth: number;
-  isMobile: boolean;
-  touchSupport: boolean;
-}> {
-  try {
-     brand: Device.brand,
-    manufacturer: Device.manufacturer ?? 'unknown',
-    modelName: Device.modelName,
-    deviceName: Device.deviceName ?? 'unknown',
-    osName: Device.osName,
-    osVersion: Device.osVersion,
-    platformApiLevel: Device.platformApiLevel ?? 'unknown',
-    totalMemory: Device.totalMemory ?? 0,
-    supportedCpuArchitectures: Device.supportedCpuArchitectures ?? [],
-    isDevice: Device.isDevice,
-       
-    const userAgent = await DeviceInfo.getUserAgent();
-    const platform = DeviceInfo.getSystemName(); // 'iOS' or 'Android'
-    const language = DeviceInfo.getDeviceLocale(); // e.g. 'en-US'
+    async get_device_info(): Promise<DeviceInfo> {
 
-    const screenWidth = DeviceInfo.getScreenWidth();  // in px
-    const screenHeight = DeviceInfo.getScreenHeight(); // in px
-    const screenResolution = `${screenWidth}x${screenHeight}`;
+  const { width, height } = Dimensions.get('screen');
+      const info: DeviceInfo = {
+        brand: Device.brand ?? null,
+        manufacturer: Device.manufacturer ?? 'unknown',
+        modelName: Device.modelName ?? null,
+        deviceName: Device.deviceName ?? 'unknown',
+        osName: Device.osName ?? null,
+        osVersion: Device.osVersion ?? null,
+        platformApiLevel: Device.platformApiLevel ?? 'unknown',
+        totalMemory: Device.totalMemory ?? 0,
+        supportedCpuArchitectures: Device.supportedCpuArchitectures ?? [],
+        isDevice: Device.isDevice,
+    screenResolution: `${width}x${height}`,
+      };
 
-    const isTablet = DeviceInfo.isTablet();
-    const isMobile = !isTablet;
-
-    const touchSupport = true; // On mobile, we assume always true
-    const colorDepth = 24;     // Not exposed by the API, we can default
-
-    const info = {
-      userAgent,
-      platform,
-      language,
-      screenResolution,
-      colorDepth,
-      isMobile,
-      touchSupport,
-    };
-
-    console.log('📱 Device info from react-native-device-info:', info);
-    return info;
-  } catch (error) {
-    console.error('❌ Failed to get device info with DeviceInfo:', error);
-    return {
-      userAgent: 'unknown',
-      platform: 'unknown',
-      language: 'en-US',
-      screenResolution: '0x0',
-      colorDepth: 24,
-      isMobile: false,
-      touchSupport: false,
-    };
-  }
-},
-
+      console.log('📱 Device Info:', info);
+      return info;
+    },
 
     updateDiagnosticStep: async (nextStep: string): Promise<string> => {
       console.log(`🔄 Moving to step: ${nextStep}`);
@@ -287,16 +238,15 @@ export default function HomeScreen() {
     },
 
     updateColorToShow: async (colorName: string): Promise<string> => {
-      
-    console.log('updateColorToShow:', colorName);
-      if(colorName === 'undefined' || colorName.color === 'undefined') {
-        return  'Color error';
+      console.log('updateColorToShow:', colorName);
+      if (colorName === 'undefined' || colorName.color === 'undefined') {
+        return 'Color error';
       }
       const colorIndex = DISPLAY_COLORS.findIndex(
         (c) => c.name.toLowerCase() === colorName.color.toLowerCase()
       );
       if (colorIndex !== -1) {
-    console.log('colorIndex:', colorIndex);
+        console.log('colorIndex:', colorIndex);
         setCurrentColorTest(colorIndex);
       }
       return `Color set to: ${colorName.color}`;
@@ -328,7 +278,6 @@ export default function HomeScreen() {
     },
   };
 
-  
   const clientTools = {
     checkMicrophonePermission: diagnosticTools.test_microphone,
     getDeviceInfos: diagnosticTools.get_device_info,
@@ -723,16 +672,16 @@ export default function HomeScreen() {
             {deviceInfo && (
               <View style={styles.deviceInfoContainer}>
                 <Typography variant="body" style={styles.deviceInfoText}>
-                  Platform: {deviceInfo.platform}
+                  Platform: {deviceInfo.osName}
                 </Typography>
                 <Typography variant="body" style={styles.deviceInfoText}>
-                  Screen: {deviceInfo.screenResolution}
+                  Screen: {deviceInfo.}
                 </Typography>
                 <Typography variant="body" style={styles.deviceInfoText}>
-                  Mobile: {deviceInfo.isMobile ? 'Yes' : 'No'}
+                  Mobile: {deviceInfo.isDevice ? 'Yes' : 'No'}
                 </Typography>
                 <Typography variant="body" style={styles.deviceInfoText}>
-                  Touch Support: {deviceInfo.touchSupport ? 'Yes' : 'No'}
+                  modelName: {deviceInfo.modelName}
                 </Typography>
               </View>
             )}
@@ -1017,27 +966,26 @@ export default function HomeScreen() {
         </Card>
 
         {/* Voice Conversation Component */}
-        
-          <View style={styles.hiddenVoiceContainer}>
-            <ConversationalAI
-              dom={{ style: styles.hiddenDomComponent }}
-              onUserMessage={handleUserMessage}
-              onAgentMessage={handleAgentMessage}
-              onModeChange={handleModeChange}
-              autoStart={voiceModeEnabled && voiceConversationStarted}
-              isVisible={voiceModeEnabled && voiceConversationStarted}
-    checkMicrophonePermission={diagnosticTools.test_microphone}
-    getDeviceInfos={diagnosticTools.get_device_info}
-    updateDiagnosticStep={diagnosticTools.updateDiagnosticStep}
-    updatePhraseToRead={diagnosticTools.updatePhraseToRead}
-    updateColorToShow={diagnosticTools.updateColorToShow}
-    recordGridCellCompleted={diagnosticTools.recordGridCellCompleted}
-    recordButtonPressed={diagnosticTools.recordButtonPressed}
-    recordSensorShake={diagnosticTools.recordSensorShake}
-    recordCameraPhoto={diagnosticTools.recordCameraPhoto}
-            />
-          </View>
-        
+
+        <View style={styles.hiddenVoiceContainer}>
+          <ConversationalAI
+            dom={{ style: styles.hiddenDomComponent }}
+            onUserMessage={handleUserMessage}
+            onAgentMessage={handleAgentMessage}
+            onModeChange={handleModeChange}
+            autoStart={voiceModeEnabled && voiceConversationStarted}
+            isVisible={voiceModeEnabled && voiceConversationStarted}
+            checkMicrophonePermission={diagnosticTools.test_microphone}
+            getDeviceInfos={diagnosticTools.get_device_info}
+            updateDiagnosticStep={diagnosticTools.updateDiagnosticStep}
+            updatePhraseToRead={diagnosticTools.updatePhraseToRead}
+            updateColorToShow={diagnosticTools.updateColorToShow}
+            recordGridCellCompleted={diagnosticTools.recordGridCellCompleted}
+            recordButtonPressed={diagnosticTools.recordButtonPressed}
+            recordSensorShake={diagnosticTools.recordSensorShake}
+            recordCameraPhoto={diagnosticTools.recordCameraPhoto}
+          />
+        </View>
 
         {/* Current Step */}
         <ScrollView style={styles.stepScrollView}>
