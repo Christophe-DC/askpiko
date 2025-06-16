@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { View, Pressable, StyleSheet, Text, Platform } from 'react-native';
 import diagnosticTools from '@/utils/diagnosticTools';
 
-async function requestMicrophonePermission() {
+/*async function requestMicrophonePermission() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     stream.getTracks().forEach(track => track.stop());
@@ -14,6 +14,23 @@ async function requestMicrophonePermission() {
     return true;
   } catch (error) {
     console.error('❌ Microphone permission denied:', error);
+    return false;
+  }
+}*/
+
+async function requestMicrophonePermission() {
+  try {
+    const { status } = await Audio.requestPermissionsAsync();
+
+    if (status === 'granted') {
+      console.log('✅ Microphone permission granted');
+      return true;
+    } else {
+      console.warn('❌ Microphone permission denied');
+      return false;
+    }
+  } catch (error) {
+    console.error('❌ Error requesting microphone permission:', error);
     return false;
   }
 }
