@@ -939,7 +939,6 @@ export default function HomeScreen() {
 
   const renderDiagnosticFlow = () => {
     const progress = getStepProgress();
-    console.log('diagnosticTools:', diagnosticTools);
 
     return (
       <View style={[styles.container, { paddingTop: insets.top }]}>
