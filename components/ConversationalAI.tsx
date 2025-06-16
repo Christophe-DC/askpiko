@@ -2,7 +2,7 @@
 
 import { useConversation } from '@elevenlabs/react';
 import { Mic, MicOff, Volume2, VolumeX, Loader } from 'lucide-react-native';
-import { useCallback, useEffect, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useState } from 'react';
 import { View, Pressable, StyleSheet, Text, Platform } from 'react-native';
 import diagnosticTools from '@/utils/diagnosticTools';
 import { Audio } from 'expo-av';
