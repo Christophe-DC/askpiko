@@ -747,23 +747,22 @@ export default function HomeScreen() {
             >
               Tap each cell to test your touchscreen
             </Typography>
-            <View style={styles.gridContainer}>
-              {Array.from({ length: 50 }, (_, index) => (
-                <Button
-                  key={index}
-                  title=""
-                  onPress={() => handleGridCellClick(index)}
-                  style={[
-                    styles.gridCell,
-                    {
-                      backgroundColor: gridTestCompleted[index]
-                        ? colors.success
-                        : colors.border,
-                    },
-                  ]}
-                />
-              ))}
-            </View>
+            <View style={styles.overlay}>
+      <View style={styles.gridContainer}>
+        {Array.from({ length: TOTAL_CELLS }, (_, index) => (
+          <TouchableOpacity
+            key={index}
+            style={[
+              styles.cell,
+              {
+                opacity: tappedCells[index] ? 0 : 0.5,
+              },
+            ]}
+            onPress={() => handleCellPress(index)}
+          />
+        ))}
+      </View>
+    </View>
           </View>
         );
 
@@ -1178,5 +1177,29 @@ const styles = StyleSheet.create({
     minWidth: 200,
     height: 48,
     borderRadius: designTokens.borderRadius.lg,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT,
+    backgroundColor: 'transparent',
+    zIndex: 999,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  gridContainer: {
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  cell: {
+    width: SCREEN_WIDTH / TOTAL_COLUMNS,
+    height: SCREEN_HEIGHT / TOTAL_ROWS,
+    borderWidth: 1,
+    borderColor: 'transparent',
+    backgroundColor: 'black',
   },
 });
