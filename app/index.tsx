@@ -5,6 +5,7 @@ import {
   ScrollView,
   StatusBar,
   Platform,
+  Dimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/useTheme';
@@ -145,45 +146,67 @@ export default function HomeScreen() {
       }
     },
 
-    get_device_info: async (): Promise<string> => {
+    export async function get_device_info(): Promise<{
+  userAgent: string;
+  platform: string;
+  language: string;
+  screenResolution: string;
+  colorDepth: number;
+  isMobile: boolean;
+  touchSupport: boolean;
+}> {
   try {
-    if (typeof navigator === 'undefined') {
-      throw new Error('navigator is not defined');
+    const isWeb = typeof window !== 'undefined' && typeof navigator !== 'undefined';
+
+    let userAgent = 'unknown';
+    let platform = 'unknown';
+    let language = 'en-US';
+    let screenResolution = '0x0';
+    let colorDepth = 24;
+    let isMobile = false;
+    let touchSupport = false;
+
+    if (isWeb) {
+      userAgent = navigator.userAgent ?? 'unknown';
+      platform = navigator.platform ?? 'unknown';
+      language = navigator.language ?? 'en-US';
+
+      if (typeof screen !== 'undefined') {
+        screenResolution = `${screen.width}x${screen.height}`;
+        colorDepth = screen.colorDepth;
+      }
+
+      const mobileKeywords = [
+        'android',
+        'iphone',
+        'ipad',
+        'ipod',
+        'blackberry',
+        'windows phone',
+        'mobile',
+      ];
+      const uaLower = userAgent.toLowerCase();
+      isMobile =
+        mobileKeywords.some((keyword) => uaLower.includes(keyword)) ||
+        window.innerWidth <= 768;
+
+      touchSupport =
+        'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    } else {
+      // Native (React Native)
+      const { width, height } = Dimensions.get('window');
+
+      userAgent = 'native-env';
+      platform = Platform.OS;
+      language = 'en-US'; // Optionnellement récupérable via expo-localization
+      screenResolution = `${width}x${height}`;
+      colorDepth = 24;
+      isMobile = true;
+      touchSupport = true;
     }
 
-    const userAgent = navigator.userAgent?.toLowerCase() ?? '';
-    const platform = navigator.platform ?? 'unknown';
-    const language = navigator.language ?? 'en-US';
-
-    const mobileKeywords = [
-      'android',
-      'iphone',
-      'ipad',
-      'ipod',
-      'blackberry',
-      'windows phone',
-      'mobile',
-    ];
-    const isMobile =
-      mobileKeywords.some((keyword) => userAgent.includes(keyword)) ||
-      (typeof window !== 'undefined' && window.innerWidth <= 768) ||
-      ('ontouchstart' in (typeof window !== 'undefined' ? window : {})) ||
-      (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0);
-
-    const screenResolution =
-      typeof screen !== 'undefined'
-        ? `${screen.width}x${screen.height}`
-        : '0x0';
-
-    const colorDepth =
-      typeof screen !== 'undefined' ? screen.colorDepth : 24;
-
-    const touchSupport =
-      typeof window !== 'undefined' && 'ontouchstart' in window ||
-      (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0);
-
     const info = {
-      userAgent: navigator.userAgent ?? 'unknown',
+      userAgent,
       platform,
       language,
       screenResolution,
@@ -192,11 +215,10 @@ export default function HomeScreen() {
       touchSupport,
     };
 
-    console.log('get_device_info:', info);
-    setDeviceInfo(info);
+    console.log('📱 get_device_info:', info);
     return info;
   } catch (error) {
-    console.error('Failed to get device info:', error);
+    console.error('❌ Failed to get device info:', error);
     return {
       userAgent: 'unknown',
       platform: 'unknown',
