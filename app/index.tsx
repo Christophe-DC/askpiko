@@ -29,6 +29,7 @@ import {
   Loader as Loader2,
 } from 'lucide-react-native';
 import ConversationalAI from '@/components/ConversationalAI';
+import DeviceInfo from 'react-native-device-info';
 
 // Types pour le diagnostic
 type DiagnosticStep =
