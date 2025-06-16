@@ -675,7 +675,7 @@ export default function HomeScreen() {
                   Platform: {deviceInfo.osName}
                 </Typography>
                 <Typography variant="body" style={styles.deviceInfoText}>
-                  Screen: {deviceInfo.}
+                  Screen: {deviceInfo.screenResolution}
                 </Typography>
                 <Typography variant="body" style={styles.deviceInfoText}>
                   Mobile: {deviceInfo.isDevice ? 'Yes' : 'No'}
