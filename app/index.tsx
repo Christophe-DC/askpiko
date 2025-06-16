@@ -429,9 +429,22 @@ export default function HomeScreen() {
 
   // Gestionnaires d'événements pour les tests
   const handleGridCellClick = (index: number) => {
+    if (!tappedCells[index]) {
+      const newTapped = [...tappedCells];
+      newTapped[index] = true;
+      setTappedCells(newTapped);
+
+      // Notify tools
     if (!gridTestCompleted[index]) {
-      diagnosticTools.recordGridCellCompleted(index.toString());
+      await diagnosticTools.recordGridCellCompleted(index.toString());
+      }
+
+      // Notify AI agent if applicable
+      if (onAgentNotify) {
+        onAgentNotify('cellTapped', { index });
+      }
     }
+    
   };
 
   const handleButtonPress = (buttonName: string) => {
