@@ -486,8 +486,7 @@ export default function ConversationalAI({
 
   const isDisabled = conversation.status === 'connecting' || (connectionRetries >= maxRetries);
 
-  return (
-    <View style={styles.container}>
+  return isVisible ? (<View style={styles.container}>
       <Pressable
         style={[
           styles.callButton,
@@ -570,7 +569,7 @@ export default function ConversationalAI({
         </Text>
       )}
     </View>
-  );
+) : null;
 }
 
 const styles = StyleSheet.create({
