@@ -324,6 +324,12 @@ export default forwardRef(function ConversationalAI({
     }
   }, [conversation, onError, hasPermission, audioEnabled, onConnect, isMobile, connectionRetries]);
 
+   useImperativeHandle(ref, () => ({
+    sendContextUpdate: (text: string) => {
+      conversation.sendContextUpdate(text);
+    },
+  }));
+
   const stopConversation = useCallback(async () => {
     try {
       console.log('🔚 Stopping ElevenLabs conversation...');
