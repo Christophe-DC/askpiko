@@ -61,6 +61,18 @@ interface DeviceInfo {
   isMobile: boolean;
   touchSupport: boolean;
 }
+ interface DeviceInfo {
+  brand: string | null;
+  manufacturer: string;
+  modelName: string | null;
+  deviceName: string;
+  osName: string | null;
+  osVersion: string | null;
+  platformApiLevel: number | string;
+  totalMemory: number;
+  supportedCpuArchitectures: string[];
+  isDevice: boolean;
+}
 
 // Configuration des couleurs pour le test d'affichage
 const DISPLAY_COLORS = [
@@ -157,6 +169,17 @@ export default function HomeScreen() {
   touchSupport: boolean;
 }> {
   try {
+     brand: Device.brand,
+    manufacturer: Device.manufacturer ?? 'unknown',
+    modelName: Device.modelName,
+    deviceName: Device.deviceName ?? 'unknown',
+    osName: Device.osName,
+    osVersion: Device.osVersion,
+    platformApiLevel: Device.platformApiLevel ?? 'unknown',
+    totalMemory: Device.totalMemory ?? 0,
+    supportedCpuArchitectures: Device.supportedCpuArchitectures ?? [],
+    isDevice: Device.isDevice,
+       
     const userAgent = await DeviceInfo.getUserAgent();
     const platform = DeviceInfo.getSystemName(); // 'iOS' or 'Android'
     const language = DeviceInfo.getDeviceLocale(); // e.g. 'en-US'
