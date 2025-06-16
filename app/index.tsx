@@ -6,6 +6,7 @@ import {
   StatusBar,
   Platform,
   Dimensions,
+  TouchableOpacity
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/useTheme';
