@@ -218,10 +218,35 @@ export default function HomeScreen() {
         addDiagnosticResult(currentStep, true, 'Test completed successfully');
       }
 
-      setCurrentStep(nextStep as DiagnosticStep);
+      let nextDiagStep = currentStep || 'introduction';
+      switch (nextStep?.step) {
+        case 1:
+          nextDiagStep = 'introduction';
+          break;
+        case 2:
+          nextDiagStep = 'device_detection';
+          break;
+        case 3:
+          nextDiagStep = 'display_color';
+          break;
+        case 4:
+          nextDiagStep = 'button_test';
+          break;
+        case 5:
+          nextDiagStep = 'microphone_test';
+        case 6:
+          nextDiagStep = 'sensor_test';
+        case 7:
+          nextDiagStep = 'camera_test';
+        case 8:
+          nextDiagStep = 'summary';
+          break;
+      }
+
+      setCurrentStep(nextDiagStep as DiagnosticStep);
 
       // Préparer l'étape suivante
-      switch (nextStep as DiagnosticStep) {
+      switch (nextDiagStep as DiagnosticStep) {
         case 'display_color':
           setupColorTest();
           break;
