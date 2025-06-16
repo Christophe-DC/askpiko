@@ -67,6 +67,7 @@ export default function ConversationalAI({
     recordSensorShake,
     recordCameraPhoto,
   autoStart = false,
+  isVisible = false
   
 }: {
   dom: DOMProps;
@@ -86,6 +87,7 @@ export default function ConversationalAI({
     recordSensorShake:  () => string;
     recordCameraPhoto:  () => string;
   autoStart?: boolean;
+  isVisible?: boolean
 }) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [currentMode, setCurrentMode] = useState<'listening' | 'speaking' | 'thinking' | 'idle'>('idle');
