@@ -301,6 +301,7 @@ export default function ConversationalAI({
           },
         },
       });
+      conversation
 
       console.log('✅ ElevenLabs conversation started successfully - ready for manual control');
     } catch (error) {
