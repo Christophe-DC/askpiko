@@ -730,7 +730,7 @@ export default function HomeScreen() {
 
       case 'display_color':
         if (
-          currentColorTest > 0 &&
+          currentColorTest > -1 &&
           currentColorTest < colorTestColors.length
         ) {
           const currentColor = DISPLAY_COLORS[currentColorTest];
