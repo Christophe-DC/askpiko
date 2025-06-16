@@ -133,6 +133,8 @@ export default function HomeScreen() {
     DiagnosticResult[]
   >([]);
 
+  const aiRef = useRef<ConversationalAIHandle>(null);
+
   const { requestMicrophonePermission, checkMicrophonePermission } =
     usePermissions();
 
