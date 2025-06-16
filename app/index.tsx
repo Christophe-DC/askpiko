@@ -138,7 +138,7 @@ export default function HomeScreen() {
     test_microphone: async (): Promise<string> => {
       try {
         const permission = await checkMicrophonePermission();
-        return permission ? 'granted' : 'denied';
+        return permission;
       } catch (error) {
         console.error('Failed to test microphone:', error);
         return 'error';
