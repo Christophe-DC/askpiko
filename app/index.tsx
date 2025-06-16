@@ -773,7 +773,7 @@ export default function HomeScreen() {
                 opacity: gridTestCompleted[index] ? 0 : 0.5,
               },
             ]}
-            onPress={() => handleCellPress(index)}
+            onPress={() => handleGridCellClick(index)}
           />
         ))}
       </View>
