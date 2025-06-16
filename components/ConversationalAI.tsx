@@ -70,7 +70,7 @@ async function enableAudioPlayback() {
   }
 }
 
-export default function ConversationalAI({
+export default forwardRef(function ConversationalAI({
   dom,
   onUserMessage,
   onAgentMessage,
