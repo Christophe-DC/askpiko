@@ -7,7 +7,7 @@ import { View, Pressable, StyleSheet, Text, Platform } from 'react-native';
 import diagnosticTools from '@/utils/diagnosticTools';
 import { Audio } from 'expo-av';
 
-/*async function requestMicrophonePermission() {
+async function requestMicrophonePermission() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     stream.getTracks().forEach(track => track.stop());
@@ -17,9 +17,9 @@ import { Audio } from 'expo-av';
     console.error('❌ Microphone permission denied:', error);
     return false;
   }
-}*/
+}
 
-async function requestMicrophonePermission() {
+/*async function requestMicrophonePermission() {
   try {
       console.log('requestMicrophonePermission');
     const { status } = await Audio.requestPermissionsAsync();
@@ -36,7 +36,7 @@ async function requestMicrophonePermission() {
     console.error('❌ Error requesting microphone permission:', error);
     return false;
   }
-}
+}*/
 
 async function enableAudioPlayback() {
   try {
