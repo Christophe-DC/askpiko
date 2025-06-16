@@ -77,7 +77,7 @@ export default function ConversationalAI({
   onConnect?: () => void;
   onDisconnect?: () => void;
   onError?: (error: Error) => void;
-    check: () => string;
+    requestMicrophonePermission: () => string;
     getDeviceInfos:  () => string;
     updateDiagnosticStep:  () => number;
     updatePhraseToRead:  () => string;
@@ -191,7 +191,7 @@ export default function ConversationalAI({
       
       // Request microphone permission
       if (!hasPermission) {
-        const granted = await request();
+        const granted = await requestMicrophonePermission();
         if (!granted) {
           throw new Error('Microphone permission is required for voice conversation');
         }
@@ -219,7 +219,7 @@ export default function ConversationalAI({
         agentId: agentId,
         dynamicVariables: {
           platform: platformInfo,
-          : check,
+          microphonePermission: requestMicrophonePermission,
           userAgent: navigator.userAgent,
           timestamp: new Date().toISOString(),
           audioEnabled: audioEnabled.toString(),
@@ -228,8 +228,8 @@ export default function ConversationalAI({
           language: deviceInfo.language,
         },
         clientTools: {
-          request:request,
-    check: check,
+       requestMicrophonePermission:requestMicrophonePermission,
+        checkMicrophonePermission: checkMicrophonePermission,
     getDeviceInfos: getDeviceInfos,
     updateDiagnosticStep: updateDiagnosticStep,
     updatePhraseToRead: updatePhraseToRead,
