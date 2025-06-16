@@ -156,54 +156,19 @@ export default function HomeScreen() {
   touchSupport: boolean;
 }> {
   try {
-    const isWeb = typeof window !== 'undefined' && typeof navigator !== 'undefined';
+    const userAgent = await DeviceInfo.getUserAgent();
+    const platform = DeviceInfo.getSystemName(); // 'iOS' or 'Android'
+    const language = DeviceInfo.getDeviceLocale(); // e.g. 'en-US'
 
-    let userAgent = 'unknown';
-    let platform = 'unknown';
-    let language = 'en-US';
-    let screenResolution = '0x0';
-    let colorDepth = 24;
-    let isMobile = false;
-    let touchSupport = false;
+    const screenWidth = DeviceInfo.getScreenWidth();  // in px
+    const screenHeight = DeviceInfo.getScreenHeight(); // in px
+    const screenResolution = `${screenWidth}x${screenHeight}`;
 
-    if (isWeb) {
-      userAgent = navigator.userAgent ?? 'unknown';
-      platform = navigator.platform ?? 'unknown';
-      language = navigator.language ?? 'en-US';
+    const isTablet = DeviceInfo.isTablet();
+    const isMobile = !isTablet;
 
-      if (typeof screen !== 'undefined') {
-        screenResolution = `${screen.width}x${screen.height}`;
-        colorDepth = screen.colorDepth;
-      }
-
-      const mobileKeywords = [
-        'android',
-        'iphone',
-        'ipad',
-        'ipod',
-        'blackberry',
-        'windows phone',
-        'mobile',
-      ];
-      const uaLower = userAgent.toLowerCase();
-      isMobile =
-        mobileKeywords.some((keyword) => uaLower.includes(keyword)) ||
-        window.innerWidth <= 768;
-
-      touchSupport =
-        'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    } else {
-      // Native (React Native)
-      const { width, height } = Dimensions.get('window');
-
-      userAgent = 'native-env';
-      platform = Platform.OS;
-      language = 'en-US'; // Optionnellement récupérable via expo-localization
-      screenResolution = `${width}x${height}`;
-      colorDepth = 24;
-      isMobile = true;
-      touchSupport = true;
-    }
+    const touchSupport = true; // On mobile, we assume always true
+    const colorDepth = 24;     // Not exposed by the API, we can default
 
     const info = {
       userAgent,
@@ -215,10 +180,10 @@ export default function HomeScreen() {
       touchSupport,
     };
 
-    console.log('📱 get_device_info:', info);
+    console.log('📱 Device info from react-native-device-info:', info);
     return info;
   } catch (error) {
-    console.error('❌ Failed to get device info:', error);
+    console.error('❌ Failed to get device info with DeviceInfo:', error);
     return {
       userAgent: 'unknown',
       platform: 'unknown',
