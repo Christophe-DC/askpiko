@@ -87,7 +87,6 @@ export default forwardRef(function ConversationalAI({
     updateDiagnosticStep,
     updatePhraseToRead,
     updateColorToShow,
-    recordGridCellCompleted,
     recordButtonPressed,
     recordSensorShake,
     recordCameraPhoto,
@@ -107,7 +106,6 @@ export default forwardRef(function ConversationalAI({
     updateDiagnosticStep:  () => number;
     updatePhraseToRead:  () => string;
     updateColorToShow:  () => string;
-    recordGridCellCompleted:  () => string;
     recordButtonPressed:  () => string;
     recordSensorShake:  () => string;
     recordCameraPhoto:  () => string;
@@ -262,7 +260,6 @@ export default forwardRef(function ConversationalAI({
     updateDiagnosticStep: updateDiagnosticStep,
     updatePhraseToRead: updatePhraseToRead,
     updateColorToShow: updateColorToShow,
-    recordGridCellCompleted: recordGridCellCompleted,
     recordButtonPressed: recordButtonPressed,
     recordSensorShake: recordSensorShake,
     recordCameraPhoto: recordCameraPhoto,
