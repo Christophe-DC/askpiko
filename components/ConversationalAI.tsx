@@ -70,6 +70,10 @@ async function enableAudioPlayback() {
   }
 }
 
+export type ConversationalAIHandle = {
+  sendContextUpdate: (text: string) => void;
+};
+
 export default forwardRef(function ConversationalAI({
   dom,
   onUserMessage,
