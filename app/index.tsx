@@ -449,9 +449,8 @@ export default function HomeScreen() {
       }
 
       // Notify AI agent if applicable
-      if (onAgentNotify) {
-        onAgentNotify('cellTapped', { index });
-      }
+      
+  aiRef.current?.sendContextUpdate('cellTapped', { index });
     }
     
   };
