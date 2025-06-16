@@ -975,14 +975,15 @@ export default function HomeScreen() {
         </Card>
 
         {/* Voice Conversation Component */}
-        {voiceModeEnabled && voiceConversationStarted && (
+        
           <View style={styles.hiddenVoiceContainer}>
             <ConversationalAI
               dom={{ style: styles.hiddenDomComponent }}
               onUserMessage={handleUserMessage}
               onAgentMessage={handleAgentMessage}
               onModeChange={handleModeChange}
-              autoStart={true}
+              autoStart={voiceModeEnabled && voiceConversationStarted}
+              isVisible={voiceModeEnabled && voiceConversationStarted}
     checkMicrophonePermission={diagnosticTools.test_microphone}
     getDeviceInfos={diagnosticTools.get_device_info}
     updateDiagnosticStep={diagnosticTools.updateDiagnosticStep}
@@ -994,7 +995,7 @@ export default function HomeScreen() {
     recordCameraPhoto={diagnosticTools.recordCameraPhoto}
             />
           </View>
-        )}
+        
 
         {/* Current Step */}
         <ScrollView style={styles.stepScrollView}>
