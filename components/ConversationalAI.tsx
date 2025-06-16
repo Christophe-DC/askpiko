@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { View, Pressable, StyleSheet, Text, Platform } from 'react-native';
 import diagnosticTools from '@/utils/diagnosticTools';
 
-async function requestMicrophonePermission() {
+async function request() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     stream.getTracks().forEach(track => track.stop());
@@ -57,7 +57,7 @@ export default function ConversationalAI({
   onConnect,
   onDisconnect,
   onError,
-    checkMicrophonePermission,
+    check,
     getDeviceInfos,
     updateDiagnosticStep,
     updatePhraseToRead,
@@ -77,7 +77,7 @@ export default function ConversationalAI({
   onConnect?: () => void;
   onDisconnect?: () => void;
   onError?: (error: Error) => void;
-    checkMicrophonePermission: () => string;
+    check: () => string;
     getDeviceInfos:  () => string;
     updateDiagnosticStep:  () => number;
     updatePhraseToRead:  () => string;
@@ -191,7 +191,7 @@ export default function ConversationalAI({
       
       // Request microphone permission
       if (!hasPermission) {
-        const granted = await requestMicrophonePermission();
+        const granted = await request();
         if (!granted) {
           throw new Error('Microphone permission is required for voice conversation');
         }
@@ -219,7 +219,7 @@ export default function ConversationalAI({
         agentId: agentId,
         dynamicVariables: {
           platform: platformInfo,
-          microphonePermission: checkMicrophonePermission,
+          : check,
           userAgent: navigator.userAgent,
           timestamp: new Date().toISOString(),
           audioEnabled: audioEnabled.toString(),
@@ -228,8 +228,8 @@ export default function ConversationalAI({
           language: deviceInfo.language,
         },
         clientTools: {
-          requestMicrophonePermission:requestMicrophonePermission,
-    checkMicrophonePermission: checkMicrophonePermission,
+          request:request,
+    check: check,
     getDeviceInfos: getDeviceInfos,
     updateDiagnosticStep: updateDiagnosticStep,
     updatePhraseToRead: updatePhraseToRead,
