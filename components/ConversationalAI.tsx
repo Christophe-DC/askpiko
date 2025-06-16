@@ -214,6 +214,7 @@ export default function ConversationalAI({
       const platformInfo = isMobile ? 'mobile' : 'web';
       const deviceInfo = await diagnosticTools.get_device_info();
       const microphonePermission = await checkMicrophonePermission;
+      console.log('microphonePermission:', microphonePermission);
       
       // Start the conversation with mobile-optimized settings
       await conversation.startSession({
