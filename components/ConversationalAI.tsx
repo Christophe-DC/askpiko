@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { View, Pressable, StyleSheet, Text, Platform } from 'react-native';
 import diagnosticTools from '@/utils/diagnosticTools';
 
-async function request() {
+async function requestMicrophonePermission() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     stream.getTracks().forEach(track => track.stop());
