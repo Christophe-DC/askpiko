@@ -449,7 +449,7 @@ export default function HomeScreen() {
       }
 
       // Notify AI agent if applicable
-      
+    
   aiRef.current?.sendContextUpdate('cellTapped', { index });
     }
     
