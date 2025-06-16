@@ -439,9 +439,9 @@ export default function HomeScreen() {
   // Gestionnaires d'événements pour les tests
   const handleGridCellClick = (index: number) => {
     if (!gridTestCompleted[index]) {
-      const newTapped = [...tappedCells];
-      newTapped[index] = true;
-      setGridTestCompleted(newTapped);
+      const newGridTestCompleted = [...gridTestCompleted];
+      newGridTestCompleted[index] = true;
+      setGridTestCompleted(newGridTestCompleted);
 
       // Notify AI agent if applicable
   aiRef.current?.sendContextUpdate('cellTapped', { index });
@@ -770,7 +770,7 @@ export default function HomeScreen() {
             style={[
               styles.cell,
               {
-                opacity: tappedCells[index] ? 0 : 0.5,
+                opacity: gridTestCompleted[index] ? 0 : 0.5,
               },
             ]}
             onPress={() => handleCellPress(index)}
