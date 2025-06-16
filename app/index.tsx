@@ -986,7 +986,6 @@ export default function HomeScreen() {
             updateDiagnosticStep={diagnosticTools.updateDiagnosticStep}
             updatePhraseToRead={diagnosticTools.updatePhraseToRead}
             updateColorToShow={diagnosticTools.updateColorToShow}
-            recordGridCellCompleted={diagnosticTools.recordGridCellCompleted}
             recordButtonPressed={diagnosticTools.recordButtonPressed}
             recordSensorShake={diagnosticTools.recordSensorShake}
             recordCameraPhoto={diagnosticTools.recordCameraPhoto}
