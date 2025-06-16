@@ -21,7 +21,9 @@ import { Audio } from 'expo-av';
 
 async function requestMicrophonePermission() {
   try {
+      console.log('requestMicrophonePermission');
     const { status } = await Audio.requestPermissionsAsync();
+      console.log('requestMicrophonePermission with status:', status);
 
     if (status === 'granted') {
       console.log('✅ Microphone permission granted');
