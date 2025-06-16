@@ -77,7 +77,7 @@ export default function ConversationalAI({
   onConnect?: () => void;
   onDisconnect?: () => void;
   onError?: (error: Error) => void;
-    requestMicrophonePermission: () => string;
+    checkMicrophonePermission: () => string;
     getDeviceInfos:  () => string;
     updateDiagnosticStep:  () => number;
     updatePhraseToRead:  () => string;
