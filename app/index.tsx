@@ -121,8 +121,7 @@ export default function HomeScreen() {
   const [colorTestColors, setColorTestColors] = useState<typeof DISPLAY_COLORS>(
     []
   );
-    const [tappedCells, setTappedCells] = useState<boolean[]>(Array(TOTAL_CELLS).fill(false));
-  const [gridTestCompleted, setGridTestCompleted] = useState<boolean[]>([]);
+    const [gridTestCompleted, setGridTestCompleted] = useState<boolean[]>(Array(TOTAL_CELLS).fill(false));
   const [buttonTestProgress, setButtonTestProgress] = useState<string[]>([]);
   const [phraseToRead, setPhraseToRead] = useState('');
   const [sensorTestCompleted, setSensorTestCompleted] = useState(false);
@@ -438,18 +437,12 @@ export default function HomeScreen() {
 
   // Gestionnaires d'événements pour les tests
   const handleGridCellClick = (index: number) => {
-    if (!tappedCells[index]) {
+    if (!gridTestCompleted[index]) {
       const newTapped = [...tappedCells];
       newTapped[index] = true;
-      setTappedCells(newTapped);
-
-      // Notify tools
-    if (!gridTestCompleted[index]) {
-      await diagnosticTools.recordGridCellCompleted(index.toString());
-      }
+      setGridTestCompleted(newTapped);
 
       // Notify AI agent if applicable
-    
   aiRef.current?.sendContextUpdate('cellTapped', { index });
     }
     
