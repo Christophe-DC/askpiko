@@ -57,7 +57,7 @@ export default function ConversationalAI({
   onConnect,
   onDisconnect,
   onError,
-    check,
+    requestMicrophonePermission,
     getDeviceInfos,
     updateDiagnosticStep,
     updatePhraseToRead,
