@@ -939,6 +939,33 @@ const [contextUpdate, setContextUpdate] = useState('');
     const progress = getStepProgress();
 
     return (
+      <View style={[styles.container, { backgroundColor: colors.surface }]}>
+      <View style={[styles.content, { paddingTop: insets.top + 60 }]}>
+        <View style={styles.logoSection}>
+          <PikoLogo style={styles.pikoVoice}
+          isSpeaking={false}
+          isLoading={false}
+        />
+
+          <Typography
+            variant="h2"
+            align="center"
+            style={[styles.tagline, { color: colors.text }]}
+          >
+            AI-Powered Device Diagnostics
+          </Typography>
+        </View>
+
+        <View style={styles.buttonSection}>
+          <Button
+            title="Start Diagnostic"
+            onPress={handleStartDiagnostic}
+            icon={<Play size={24} color="#FFFFFF" />}
+            style={[styles.startButton, { backgroundColor: colors.primary }]}
+          />
+        </View>
+      </View>
+    </View>
       <View style={[styles.container, { paddingTop: insets.top }]}>
         {/* Progress Header */}
         <Card style={styles.progressCard}>
@@ -971,10 +998,7 @@ const [contextUpdate, setContextUpdate] = useState('');
           </View>
         </Card>
 
-        <PikoLogo style={styles.pikoVoice}
-          isSpeaking={true}
-          isLoading={false}
-        />
+        
 
         {/* Voice Conversation Component */}
 
