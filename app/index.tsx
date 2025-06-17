@@ -1133,7 +1133,7 @@ const styles = StyleSheet.create({
   pikoVoice: {
     width: 100,
     height: 100,
-  }
+  },
   hiddenVoiceContainer: {    
     position: 'absolute',
     top: -1000,
