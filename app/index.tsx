@@ -1126,13 +1126,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   hiddenVoiceContainer: {
-    position: 'absolute',
-    top: -1000,
-    left: -1000,
     width: 100,
     height: 100,
-    opacity: 0,
-    pointerEvents: 'none',
   },
   hiddenDomComponent: {
     width: 1,
