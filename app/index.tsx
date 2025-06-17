@@ -935,7 +935,7 @@ const [contextUpdate, setContextUpdate] = useState('');
       <View style={[styles.content, { paddingTop: insets.top + 60 }]}>
         <View style={styles.logoSection}>
           <PikoLogo style={styles.pikoVoice}
-          isSpeaking={false}
+          isSpeaking={true}
           isLoading={false}
         />
 
