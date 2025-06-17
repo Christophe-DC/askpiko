@@ -613,7 +613,7 @@ const [contextUpdate, setContextUpdate] = useState('');
         <View style={styles.buttonSection}>
           <Button
             title="Start Diagnostic"
-            onPress={handleGridCellClick}
+            onPress={handleStartDiagnostic}
             icon={<Play size={24} color="#FFFFFF" />}
             style={[styles.startButton, { backgroundColor: colors.primary }]}
           />
