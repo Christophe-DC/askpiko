@@ -938,27 +938,7 @@ const [contextUpdate, setContextUpdate] = useState('');
           isLoading={false}
         />
 
-          <Typography
-            variant="h2"
-            align="center"
-            style={[styles.tagline, { color: colors.text }]}
-          >
-            AI-Powered Device Diagnostics
-          </Typography>
-        </View>
-
-        <View style={styles.buttonSection}>
-          <Button
-            title="Start Diagnostic"
-            onPress={handleStartDiagnostic}
-            icon={<Play size={24} color="#FFFFFF" />}
-            style={[styles.startButton, { backgroundColor: colors.primary }]}
-          />
-        </View>
-      </View>
-    </View>
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        {/* Progress Header */}
+          {/* Progress Header */}
         <Card style={styles.progressCard}>
           <View style={styles.progressHeader}>
             <Typography variant="h4" style={styles.progressTitle}>
@@ -989,9 +969,7 @@ const [contextUpdate, setContextUpdate] = useState('');
           </View>
         </Card>
 
-        
-
-        {/* Voice Conversation Component */}
+           {/* Voice Conversation Component */}
 
         <View style={styles.hiddenVoiceContainer}>
           <ConversationalAI
@@ -1020,6 +998,7 @@ const [contextUpdate, setContextUpdate] = useState('');
           {renderCurrentStepContent()}
         </ScrollView>
       </View>
+    </View>
     );
   };
 
