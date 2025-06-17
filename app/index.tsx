@@ -994,6 +994,7 @@ const [contextUpdate, setContextUpdate] = useState('');
             recordButtonPressed={diagnosticTools.recordButtonPressed}
             recordSensorShake={diagnosticTools.recordSensorShake}
             recordCameraPhoto={diagnosticTools.recordCameraPhoto}
+            contextUpdate={contextUpdate}
           />
         </View>
 
