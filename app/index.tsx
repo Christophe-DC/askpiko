@@ -590,8 +590,8 @@ const [contextUpdate, setContextUpdate] = useState('');
       <View style={[styles.content, { paddingTop: insets.top + 60 }]}>
         <View style={styles.logoSection}>
            <PikoLogo style={styles.pikoVoice}
-          isSpeaking={voiceMode === 'speaking'}
-          isLoading={voiceMode === 'idle'}
+          isSpeaking={true}
+          isLoading={false}
         />
 
           <Typography
@@ -935,8 +935,8 @@ const [contextUpdate, setContextUpdate] = useState('');
       <View style={[styles.content, { paddingTop: insets.top + 60 }]}>
         <View style={styles.logoSection}>
           <PikoLogo style={styles.pikoVoice}
-          isSpeaking={true}
-          isLoading={false}
+          isSpeaking={voiceMode === 'speaking'}
+          isLoading={voiceMode === 'idle'}
         />
 
           {/* Progress Header */}
