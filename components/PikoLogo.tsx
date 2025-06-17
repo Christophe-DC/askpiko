@@ -6,7 +6,7 @@ type Props = {
   isLoading: boolean;
 };
 
-const IMAGE_SIZE = 96;
+const IMAGE_SIZE = 192;
 const CONTAINER_SIZE = 128;
 const PULSE_ORIGIN_SIZE = 64; // Taille initiale de l'onde (réduite pour compenser le padding transparent)
 
