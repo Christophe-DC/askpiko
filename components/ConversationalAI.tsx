@@ -152,7 +152,7 @@ const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
 
     useEffect(() => {
     if (contextUpdate) {
-      conversation.sendContextualUpdate(contextUpdate);
+      conversation?.sendContextualUpdate(contextUpdate);
     }
   }, [contextUpdate]);
 
