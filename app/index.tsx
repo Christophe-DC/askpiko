@@ -610,7 +610,7 @@ export default function HomeScreen() {
         <View style={styles.buttonSection}>
           <Button
             title="Start Diagnostic"
-            onPress={handleStartDiagnostic}
+            onPress={handleGridCellClick}
             icon={<Play size={24} color="#FFFFFF" />}
             style={[styles.startButton, { backgroundColor: colors.primary }]}
           />
