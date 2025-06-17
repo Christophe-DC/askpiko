@@ -6,103 +6,62 @@ type Props = {
   isLoading: boolean;
 };
 
+const WAVE_SIZE = 80; // Taille plus petite que le logo visible
+const WAVE_OFFSET = 8; // Ajustement du centrage visuel
+
 const PikoLogo: React.FC<Props> = ({ isSpeaking, isLoading }) => {
-  // Augmentation du nombre de vagues pour un effet plus riche
   const pulses = [
     useRef(new Animated.Value(0)).current,
     useRef(new Animated.Value(0)).current,
     useRef(new Animated.Value(0)).current,
-    useRef(new Animated.Value(0)).current,
   ];
-
   const pulseAnims = useRef<Animated.CompositeAnimation[]>([]);
   const spin = useRef(new Animated.Value(0)).current;
   const spinAnim = useRef<Animated.CompositeAnimation | null>(null);
-  
-  // Animation de pulsation du logo principal
-  const logoScale = useRef(new Animated.Value(1)).current;
-  const logoScaleAnim = useRef<Animated.CompositeAnimation | null>(null);
 
-  // Animation des vagues de parole
+  // Pulse
   useEffect(() => {
     if (isSpeaking) {
-      // Animation subtile du logo principal
-      logoScaleAnim.current = Animated.loop(
-        Animated.sequence([
-          Animated.timing(logoScale, {
-            toValue: 1.05,
-            duration: 800,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.timing(logoScale, {
-            toValue: 1,
-            duration: 800,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-        ])
-      );
-      logoScaleAnim.current.start();
-
-      // Vagues avec des délais et durées variables pour plus de naturel
       pulseAnims.current = pulses.map((anim, index) =>
         Animated.loop(
           Animated.sequence([
-            Animated.delay(index * 300), // Délai réduit pour plus de fluidité
+            Animated.delay(index * 400),
             Animated.timing(anim, {
               toValue: 1,
-              duration: 1800 + index * 200, // Durées variables
-              easing: Easing.out(Easing.quad),
+              duration: 2000,
+              easing: Easing.out(Easing.ease),
               useNativeDriver: true,
             }),
             Animated.timing(anim, {
               toValue: 0,
-              duration: 100,
+              duration: 0,
               useNativeDriver: true,
             }),
           ])
         )
       );
-      pulseAnims.current.forEach((anim) => anim.start());
+      pulseAnims.current.forEach((a) => a.start());
     } else {
-      pulseAnims.current.forEach((anim) => anim.stop());
-      logoScaleAnim.current?.stop();
-      // Retour smooth à la taille normale
-      Animated.timing(logoScale, {
-        toValue: 1,
-        duration: 300,
-        easing: Easing.out(Easing.ease),
-        useNativeDriver: true,
-      }).start();
+      pulseAnims.current.forEach((a) => a.stop?.());
     }
-
-    return () => {
-      pulseAnims.current.forEach((anim) => anim.stop());
-      logoScaleAnim.current?.stop();
-    };
   }, [isSpeaking]);
 
-  // Animation de chargement
+  // Spinner
   useEffect(() => {
     if (isLoading) {
       spin.setValue(0);
       spinAnim.current = Animated.loop(
         Animated.timing(spin, {
           toValue: 1,
-          duration: 1200, // Légèrement plus lent pour plus d'élégance
+          duration: 1000,
           easing: Easing.linear,
           useNativeDriver: true,
         })
       );
       spinAnim.current.start();
     } else {
-      spinAnim.current?.stop();
+      spinAnim.current?.stop?.();
     }
-
-    return () => {
-      spinAnim.current?.stop();
-    };
   }, [isLoading]);
 
   const spinInterpolate = spin.interpolate({
@@ -110,111 +69,94 @@ const PikoLogo: React.FC<Props> = ({ isSpeaking, isLoading }) => {
     outputRange: ['0deg', '360deg'],
   });
 
-  const renderPulse = (scaleAnim: Animated.Value, index: number) => {
-    const maxScale = 2.2 + index * 0.3; // Échelles plus variées
-    const baseOpacity = 0.6 - index * 0.1; // Opacités décroissantes
-    
-    return (
-      <Animated.View
-        key={index}
-        style={[
-          styles.pulse,
-          {
-            transform: [
-              {
-                scale: scaleAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [1, maxScale],
-                }),
-              },
-            ],
-            opacity: scaleAnim.interpolate({
-              inputRange: [0, 0.1, 1],
-              outputRange: [baseOpacity, baseOpacity * 0.8, 0],
-            }),
-          },
-        ]}
-      />
-    );
-  };
+  const renderPulse = (scaleAnim: Animated.Value, index: number) => (
+    <Animated.View
+      key={index}
+      style={[
+        styles.pulse,
+        {
+          transform: [
+            {
+              scale: scaleAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [1, 2 + index * 0.4],
+              }),
+            },
+          ],
+          opacity: scaleAnim.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0.4, 0],
+          }),
+        },
+      ]}
+    />
+  );
 
   return (
     <View style={styles.container}>
-      {/* Vagues de parole */}
-      {isSpeaking && pulses.map((pulse, index) => renderPulse(pulse, index))}
+      {/* Pulses (derrière) */}
+      {isSpeaking && pulses.map((p, i) => renderPulse(p, i))}
 
-      {/* Spinner de chargement */}
+      {/* Spinner */}
       {isLoading && (
         <Animated.View
-          style={[
-            styles.spinner,
-            { 
-              transform: [{ rotate: spinInterpolate }],
-            }
-          ]}
+          style={[styles.spinner, { transform: [{ rotate: spinInterpolate }] }]}
         />
       )}
 
-      {/* Logo principal avec animation */}
-      <Animated.View 
-        style={[
-          styles.logo,
-          {
-            transform: [{ scale: logoScale }],
-          }
-        ]}
-      >
+      {/* Logo */}
+      <View style={styles.logo}>
         <Image
           source={require('../assets/images/pikoIcon.png')}
-          style={styles.logoImage}
+          style={{ width: 96, height: 96 }}
           resizeMode="contain"
         />
-      </Animated.View>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    width: 140,
-    height: 140,
+    width: 128,
+    height: 128,
     alignItems: 'center',
     justifyContent: 'center',
   },
   pulse: {
     position: 'absolute',
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    backgroundColor: '#3b82f6', // Couleur plus vive
+    width: WAVE_SIZE,
+    height: WAVE_SIZE,
+    left: (128 - WAVE_SIZE) / 2 - WAVE_OFFSET,
+    top: (128 - WAVE_SIZE) / 2 - WAVE_OFFSET,
+    borderRadius: WAVE_SIZE / 2,
+    backgroundColor: 'rgba(59,130,246,0.4)',
+    zIndex: 0,
   },
   spinner: {
     position: 'absolute',
-    width: 156,
-    height: 156,
-    borderRadius: 78,
-    borderWidth: 3,
-    borderColor: 'rgba(59, 130, 246, 0.2)',
-    borderTopColor: '#3b82f6',
-    borderRightColor: '#3b82f6',
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    borderWidth: 4,
+    borderColor: 'rgba(59,130,246,0.4)',
+    borderTopColor: 'transparent',
+    zIndex: 0,
   },
   logo: {
     width: 96,
     height: 96,
     borderRadius: 48,
+    backgroundColor: '#2563eb',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'transparent',
-    shadowColor: '#3b82f6',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    elevation: 12,
-    zIndex: 10,
-  },
-  logoImage: {
-    width: 296,
-    height: 296,
+    shadowColor: '#2563eb',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 10,
+    overflow: 'hidden',
+    zIndex: 2,
   },
 });
 
