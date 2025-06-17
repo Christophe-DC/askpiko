@@ -445,8 +445,7 @@ export default function HomeScreen() {
       setGridTestCompleted(newGridTestCompleted);
 
       // Notify AI agent if applicable
-      const totalTrue = gridTestCompleted.filter(Boolean).length;
-      console.log('aiRef.current:', aiRef.current);
+      const totalTrue = newGridTestCompleted.filter(Boolean).length;
       console.log('aiRef.current:', aiRef.current);
       aiRef.current?.sendContextUpdate(
         `cell Tapped ${totalTrue}/${TOTAL_CELLS}`
