@@ -6,7 +6,7 @@ import {
   StatusBar,
   Platform,
   Dimensions,
-  TouchableOpacity
+  TouchableOpacity,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/useTheme';
@@ -29,7 +29,9 @@ import {
   VolumeX,
   Loader as Loader2,
 } from 'lucide-react-native';
-import ConversationalAI from '@/components/ConversationalAI';
+import ConversationalAI, {
+  ConversationalAIHandle,
+} from '@/components/ConversationalAI';
 import * as Device from 'expo-device';
 
 // Types pour le diagnostic
@@ -122,7 +124,9 @@ export default function HomeScreen() {
   const [colorTestColors, setColorTestColors] = useState<typeof DISPLAY_COLORS>(
     []
   );
-    const [gridTestCompleted, setGridTestCompleted] = useState<boolean[]>(Array(TOTAL_CELLS).fill(false));
+  const [gridTestCompleted, setGridTestCompleted] = useState<boolean[]>(
+    Array(TOTAL_CELLS).fill(false)
+  );
   const [buttonTestProgress, setButtonTestProgress] = useState<string[]>([]);
   const [phraseToRead, setPhraseToRead] = useState('');
   const [sensorTestCompleted, setSensorTestCompleted] = useState(false);
@@ -162,8 +166,7 @@ export default function HomeScreen() {
     },
 
     async get_device_info(): Promise<DeviceInfo> {
-
-  const { width, height } = Dimensions.get('screen');
+      const { width, height } = Dimensions.get('screen');
       const info: DeviceInfo = {
         brand: Device.brand ?? null,
         manufacturer: Device.manufacturer ?? 'unknown',
@@ -175,7 +178,7 @@ export default function HomeScreen() {
         totalMemory: Device.totalMemory ?? 0,
         supportedCpuArchitectures: Device.supportedCpuArchitectures ?? [],
         isDevice: Device.isDevice,
-    screenResolution: `${width}x${height}`,
+        screenResolution: `${width}x${height}`,
       };
 
       console.log('📱 Device Info:', info);
@@ -444,9 +447,11 @@ export default function HomeScreen() {
       setGridTestCompleted(newGridTestCompleted);
 
       // Notify AI agent if applicable
-  aiRef.current?.sendContextUpdate('cellTapped', { index });
+      const totalTrue = gridTestCompleted.filter(Boolean).length;
+      aiRef.current?.sendContextUpdate(
+        `cell Tapped ${totalTrue}/${TOTAL_CELLS}`
+      );
     }
-    
   };
 
   const handleButtonPress = (buttonName: string) => {
@@ -480,10 +485,10 @@ export default function HomeScreen() {
     }
   }, [currentStep, sensorTestCompleted]);
 
-   useEffect(() => {
-  handleMicrophonePermissionRequest()
-      }, []);
-  
+  useEffect(() => {
+    handleMicrophonePermissionRequest();
+  }, []);
+
   // Détection mobile
   useEffect(() => {
     const checkMobile = () => {
@@ -763,21 +768,21 @@ export default function HomeScreen() {
               Tap each cell to test your touchscreen
             </Typography>
             <View style={styles.overlay}>
-      <View style={styles.gridContainer}>
-        {Array.from({ length: TOTAL_CELLS }, (_, index) => (
-          <TouchableOpacity
-            key={index}
-            style={[
-              styles.cell,
-              {
-                opacity: gridTestCompleted[index] ? 0 : 0.5,
-              },
-            ]}
-            onPress={() => handleGridCellClick(index)}
-          />
-        ))}
-      </View>
-    </View>
+              <View style={styles.gridContainer}>
+                {Array.from({ length: TOTAL_CELLS }, (_, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[
+                      styles.cell,
+                      {
+                        opacity: gridTestCompleted[index] ? 0 : 0.5,
+                      },
+                    ]}
+                    onPress={() => handleGridCellClick(index)}
+                  />
+                ))}
+              </View>
+            </View>
           </View>
         );
 
@@ -796,7 +801,6 @@ export default function HomeScreen() {
             >
               Press the following buttons when Piko asks:
             </Typography>
-            
           </Card>
         );
 
