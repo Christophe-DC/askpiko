@@ -588,19 +588,10 @@ const [contextUpdate, setContextUpdate] = useState('');
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <View style={[styles.content, { paddingTop: insets.top + 60 }]}>
         <View style={styles.logoSection}>
-          <View
-            style={[
-              styles.logoContainer,
-              { backgroundColor: colors.primary + '20' },
-            ]}
-          >
-            <Typography
-              variant="h1"
-              style={[styles.logo, { color: colors.primary }]}
-            >
-              Piko
-            </Typography>
-          </View>
+           <PikoLogo style={styles.pikoVoice}
+          isSpeaking={false}
+          isLoading={false}
+        />
 
           <Typography
             variant="h2"
