@@ -6,8 +6,9 @@ type Props = {
   isLoading: boolean;
 };
 
-const WAVE_SIZE = 80; // Taille plus petite que le logo visible
-const WAVE_OFFSET = 8; // Ajustement du centrage visuel
+const IMAGE_SIZE = 96;
+const CONTAINER_SIZE = 128;
+const PULSE_ORIGIN_SIZE = 64; // Taille initiale de l'onde (réduite pour compenser le padding transparent)
 
 const PikoLogo: React.FC<Props> = ({ isSpeaking, isLoading }) => {
   const pulses = [
@@ -19,7 +20,7 @@ const PikoLogo: React.FC<Props> = ({ isSpeaking, isLoading }) => {
   const spin = useRef(new Animated.Value(0)).current;
   const spinAnim = useRef<Animated.CompositeAnimation | null>(null);
 
-  // Pulse
+  // Pulses
   useEffect(() => {
     if (isSpeaking) {
       pulseAnims.current = pulses.map((anim, index) =>
@@ -94,7 +95,7 @@ const PikoLogo: React.FC<Props> = ({ isSpeaking, isLoading }) => {
 
   return (
     <View style={styles.container}>
-      {/* Pulses (derrière) */}
+      {/* Ondes */}
       {isSpeaking && pulses.map((p, i) => renderPulse(p, i))}
 
       {/* Spinner */}
@@ -104,11 +105,11 @@ const PikoLogo: React.FC<Props> = ({ isSpeaking, isLoading }) => {
         />
       )}
 
-      {/* Logo */}
+      {/* Logo sans fond */}
       <View style={styles.logo}>
         <Image
           source={require('../assets/images/pikoIcon.png')}
-          style={{ width: 96, height: 96 }}
+          style={styles.image}
           resizeMode="contain"
         />
       </View>
@@ -118,19 +119,20 @@ const PikoLogo: React.FC<Props> = ({ isSpeaking, isLoading }) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: 128,
-    height: 128,
+    width: CONTAINER_SIZE,
+    height: CONTAINER_SIZE,
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
   },
   pulse: {
     position: 'absolute',
-    width: WAVE_SIZE,
-    height: WAVE_SIZE,
-    left: (128 - WAVE_SIZE) / 2 - WAVE_OFFSET,
-    top: (128 - WAVE_SIZE) / 2 - WAVE_OFFSET,
-    borderRadius: WAVE_SIZE / 2,
+    width: PULSE_ORIGIN_SIZE,
+    height: PULSE_ORIGIN_SIZE,
+    borderRadius: PULSE_ORIGIN_SIZE / 2,
     backgroundColor: 'rgba(59,130,246,0.4)',
+    left: (CONTAINER_SIZE - PULSE_ORIGIN_SIZE) / 2,
+    top: (CONTAINER_SIZE - PULSE_ORIGIN_SIZE) / 2,
     zIndex: 0,
   },
   spinner: {
@@ -144,19 +146,13 @@ const styles = StyleSheet.create({
     zIndex: 0,
   },
   logo: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    backgroundColor: '#2563eb',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#2563eb',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 10,
-    overflow: 'hidden',
+    width: IMAGE_SIZE,
+    height: IMAGE_SIZE,
     zIndex: 2,
+  },
+  image: {
+    width: '100%',
+    height: '100%',
   },
 });
 
