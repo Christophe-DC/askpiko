@@ -100,6 +100,7 @@ type Props = {
   recordCameraPhoto: () => string;
   autoStart?: boolean;
   isVisible?: boolean;
+  contextUpdate?: string;
 };
 
 const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
@@ -122,6 +123,7 @@ const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
       recordCameraPhoto,
       autoStart = false,
       isVisible = false,
+      contextUpdate = null
     },
     ref
   ) => {
@@ -147,7 +149,13 @@ const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
         conversation.sendContextualUpdate(text);
     },
   }));
-    
+
+    useEffect(() => {
+    if (contextUpdate) {
+      conversation.sendContextualUpdate(contextUpdate);
+      onContextProcessed?.();
+    }
+  }, [contextUpdate]);
 
     // Detect mobile device with enhanced detection
     useEffect(() => {
