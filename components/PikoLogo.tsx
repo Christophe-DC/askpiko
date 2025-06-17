@@ -4,13 +4,10 @@ import { View, Image, StyleSheet, Animated, Easing } from 'react-native';
 type Props = {
   isSpeaking: boolean;
   isLoading: boolean;
+  size?: number; 
 };
 
-const IMAGE_SIZE = 192;
-const CONTAINER_SIZE = 128;
-const PULSE_ORIGIN_SIZE = 64; // Taille initiale de l'onde (réduite pour compenser le padding transparent)
-
-const PikoLogo: React.FC<Props> = ({ isSpeaking, isLoading }) => {
+const PikoLogo: React.FC<Props> = ({ isSpeaking, isLoading, size = 192 }) => {
   const pulses = [
     useRef(new Animated.Value(0)).current,
     useRef(new Animated.Value(0)).current,
@@ -20,7 +17,9 @@ const PikoLogo: React.FC<Props> = ({ isSpeaking, isLoading }) => {
   const spin = useRef(new Animated.Value(0)).current;
   const spinAnim = useRef<Animated.CompositeAnimation | null>(null);
 
-  // Pulses
+  const waveSize = size * 0.5; // onde part du centre réel, plus petite que le logo
+  const imageSize = size * 0.75;
+
   useEffect(() => {
     if (isSpeaking) {
       pulseAnims.current = pulses.map((anim, index) =>
@@ -47,7 +46,6 @@ const PikoLogo: React.FC<Props> = ({ isSpeaking, isLoading }) => {
     }
   }, [isSpeaking]);
 
-  // Spinner
   useEffect(() => {
     if (isLoading) {
       spin.setValue(0);
@@ -73,86 +71,65 @@ const PikoLogo: React.FC<Props> = ({ isSpeaking, isLoading }) => {
   const renderPulse = (scaleAnim: Animated.Value, index: number) => (
     <Animated.View
       key={index}
-      style={[
-        styles.pulse,
-        {
-          transform: [
-            {
-              scale: scaleAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [1, 2 + index * 0.4],
-              }),
-            },
-          ],
-          opacity: scaleAnim.interpolate({
-            inputRange: [0, 1],
-            outputRange: [0.4, 0],
-          }),
-        },
-      ]}
+      style={{
+        position: 'absolute',
+        width: waveSize,
+        height: waveSize,
+        borderRadius: waveSize / 2,
+        backgroundColor: 'rgba(59,130,246,0.4)',
+        left: (size - waveSize) / 2,
+        top: (size - waveSize) / 2,
+        transform: [
+          {
+            scale: scaleAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [1, 2 + index * 0.4],
+            }),
+          },
+        ],
+        opacity: scaleAnim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0.4, 0],
+        }),
+        zIndex: 0,
+      }}
     />
   );
 
   return (
-    <View style={styles.container}>
-      {/* Ondes */}
+    <View style={[styles.container, { width: size, height: size }]}>
       {isSpeaking && pulses.map((p, i) => renderPulse(p, i))}
 
-      {/* Spinner */}
       {isLoading && (
         <Animated.View
-          style={[styles.spinner, { transform: [{ rotate: spinInterpolate }] }]}
+          style={{
+            position: 'absolute',
+            width: size + 12,
+            height: size + 12,
+            borderRadius: (size + 12) / 2,
+            borderWidth: 4,
+            borderColor: 'rgba(59,130,246,0.4)',
+            borderTopColor: 'transparent',
+            transform: [{ rotate: spinInterpolate }],
+            zIndex: 0,
+          }}
         />
       )}
 
-      {/* Logo sans fond */}
-      <View style={styles.logo}>
-        <Image
-          source={require('../assets/images/pikoIcon.png')}
-          style={styles.image}
-          resizeMode="contain"
-        />
-      </View>
+      <Image
+        source={require('../assets/images/pikoIcon.png')}
+        style={{ width: imageSize, height: imageSize, zIndex: 2 }}
+        resizeMode="contain"
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    width: CONTAINER_SIZE,
-    height: CONTAINER_SIZE,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-  },
-  pulse: {
-    position: 'absolute',
-    width: PULSE_ORIGIN_SIZE,
-    height: PULSE_ORIGIN_SIZE,
-    borderRadius: PULSE_ORIGIN_SIZE / 2,
-    backgroundColor: 'rgba(59,130,246,0.4)',
-    left: (CONTAINER_SIZE - PULSE_ORIGIN_SIZE) / 2,
-    top: (CONTAINER_SIZE - PULSE_ORIGIN_SIZE) / 2,
-    zIndex: 0,
-  },
-  spinner: {
-    position: 'absolute',
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    borderWidth: 4,
-    borderColor: 'rgba(59,130,246,0.4)',
-    borderTopColor: 'transparent',
-    zIndex: 0,
-  },
-  logo: {
-    width: IMAGE_SIZE,
-    height: IMAGE_SIZE,
-    zIndex: 2,
-  },
-  image: {
-    width: '100%',
-    height: '100%',
   },
 });
 
