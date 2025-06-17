@@ -1199,6 +1199,11 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: designTokens.borderRadius.lg,
   },
+  gridTestContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+  },
   overlay: {
     position: 'absolute',
     top: 0,
