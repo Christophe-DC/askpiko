@@ -970,6 +970,11 @@ const [contextUpdate, setContextUpdate] = useState('');
           </View>
         </Card>
 
+        <PikoLogo
+          isSpeaking={currentMode === 'listening'}
+          isLoading={isInitialized}
+        />
+
         {/* Voice Conversation Component */}
 
         <View style={styles.hiddenVoiceContainer}>
