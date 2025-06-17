@@ -230,7 +230,7 @@ const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
     });
 
     
-    
+  
      useImperativeHandle(ref, () => ({
     sendContextUpdate: (text: string) => {
       console.log('Message envoyé à l’IA:', text);
