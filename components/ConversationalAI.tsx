@@ -12,6 +12,7 @@ import {
 import { View, Pressable, StyleSheet, Text, Platform } from 'react-native';
 import diagnosticTools from '@/utils/diagnosticTools';
 import { Audio } from 'expo-av';
+import PikoLogo from './PikoLogo';
 
 async function requestMicrophonePermission() {
   try {
@@ -366,7 +367,7 @@ export default forwardRef(function ConversationalAI(
 
   useImperativeHandle(ref, () => ({
     sendContextUpdate: (text: string) => {
-      conversation.sendContextUpdate(text);
+      conversation.sendContextualUpdate(text);
     },
   }));
 
@@ -570,6 +571,10 @@ export default forwardRef(function ConversationalAI(
 
   return isVisible ? (
     <View style={styles.container}>
+      <PikoLogo
+        isSpeaking={currentMode === 'listening'}
+        isLoading={isInitialized}
+      />
       <Pressable
         style={[
           styles.callButton,
