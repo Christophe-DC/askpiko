@@ -100,7 +100,6 @@ type Props = {
   recordCameraPhoto: () => string;
   autoStart?: boolean;
   isVisible?: boolean;
-  contextUpdate?: string;
 };
 
 const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
@@ -123,7 +122,6 @@ const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
       recordCameraPhoto,
       autoStart = false,
       isVisible = false,
-      contextUpdate = null
     },
     ref
   ) => {
@@ -228,22 +226,6 @@ const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
         onError?.(new Error(error.message || 'Conversation error'));
       },
     });
-
-    
-  
-     useImperativeHandle(ref, () => ({
-    sendContextUpdate: (text: string) => {
-      console.log('Message envoyé à l’IA:', text);
-        conversation.sendContextualUpdate(text);
-    },
-  }));
-
-    useEffect(() => {
-    if (contextUpdate) {
-      conversation?.sendContextualUpdate(contextUpdate);
-    }
-  }, [contextUpdate]);
-
 
     const startConversation = useCallback(async () => {
       try {
@@ -386,6 +368,11 @@ const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
       connectionRetries,
     ]);
 
+    useImperativeHandle(ref, () => ({
+      sendContextUpdate: (text: string) => {
+        conversation.sendContextualUpdate(text);
+      },
+    }));
 
     const stopConversation = useCallback(async () => {
       try {
@@ -612,86 +599,7 @@ const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
           isSpeaking={currentMode === 'listening'}
           isLoading={isInitialized}
         />
-        <Pressable
-          style={[
-            styles.callButton,
-            {
-              backgroundColor: `${getButtonColor()}20`,
-              opacity: isDisabled ? 0.6 : 1,
-            },
-          ]}
-          onPress={handleButtonPress}
-          disabled={isDisabled}
-        >
-          <View
-            style={[styles.buttonInner, { backgroundColor: getButtonColor() }]}
-          >
-            {getButtonIcon()}
-          </View>
-        </Pressable>
-
-        <Text style={styles.statusText}>{getStatusText()}</Text>
-
-        {isMobile && (
-          <Text style={styles.mobileHint}>
-            {conversation.status === 'disconnected'
-              ? 'Optimized for mobile browsers!'
-              : conversation.status === 'connected' &&
-                currentMode === 'listening'
-              ? 'Speak clearly into your microphone'
-              : conversation.status === 'connecting'
-              ? 'Mobile connection in progress...'
-              : conversation.status === 'connected' && !conversationStarted
-              ? 'Ready for manual conversation control'
-              : ''}
-          </Text>
-        )}
-
-        {conversation.status === 'connected' && lastAgentMessage && (
-          <Text style={styles.lastMessage}>
-            Piko: "{lastAgentMessage.substring(0, 50)}..."
-          </Text>
-        )}
-
-        {conversation.status === 'connected' && lastUserMessage && (
-          <Text style={styles.lastUserMessage}>
-            You: "{lastUserMessage.substring(0, 50)}..."
-          </Text>
-        )}
-
-        {!hasPermission && conversation.status === 'disconnected' && (
-          <Text style={styles.permissionText}>
-            Microphone permission required
-          </Text>
-        )}
-
-        {!audioEnabled &&
-          conversation.status === 'disconnected' &&
-          userInteracted && (
-            <Text style={styles.audioText}>
-              Enabling audio for voice conversation...
-            </Text>
-          )}
-
-        {conversation.status === 'connected' &&
-          !conversationStarted &&
-          manualStartRequested && (
-            <Text style={styles.waitingText}>
-              Connected - conversation ready for manual control
-            </Text>
-          )}
-
-        {connectionRetries > 0 && connectionRetries < maxRetries && (
-          <Text style={styles.retryText}>
-            Connection retry {connectionRetries}/{maxRetries}
-          </Text>
-        )}
-
-        {connectionRetries >= maxRetries && (
-          <Text style={styles.errorText}>
-            Connection failed. Please check your internet and try again.
-          </Text>
-        )}
+      
       </View>
     ) : null;
   }
