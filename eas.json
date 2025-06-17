@@ -1,0 +1,25 @@
+{
+    "build": {
+        "preview": {
+            "android": {
+                "buildType": "apk"
+            },
+            "env": {
+                "EXPO_PUBLIC_ELEVENLABS_API_KEY": "sk_e65ba3736e4b5a07ec6eae9e675eabd388e25fc7470599b1",
+                "EXPO_PUBLIC_ELEVENLABS_AGENT_ID": "agent_01jx2px3ypfe8a6ctz67rp56cf"
+            }
+        },
+        "preview2": {
+            "android": {
+                "gradleCommand": ":app:assembleRelease"
+            }
+        },
+        "preview3": {
+            "developmentClient": true
+        },
+        "preview4": {
+            "distribution": "internal"
+        },
+        "production": {}
+    }
+}

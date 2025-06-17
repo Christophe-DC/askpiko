@@ -2,7 +2,13 @@
 
 import { useConversation } from '@elevenlabs/react';
 import { Mic, MicOff, Volume2, VolumeX, Loader } from 'lucide-react-native';
-import { forwardRef, useImperativeHandle, useCallback, useEffect, useState } from 'react';
+import {
+  forwardRef,
+  useImperativeHandle,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { View, Pressable, StyleSheet, Text, Platform } from 'react-native';
 import diagnosticTools from '@/utils/diagnosticTools';
 import { Audio } from 'expo-av';
@@ -11,7 +17,7 @@ async function requestMicrophonePermission() {
   try {
     console.log('requestMicrophonePermission');
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    stream.getTracks().forEach(track => track.stop());
+    stream.getTracks().forEach((track) => track.stop());
     console.log('✅ Microphone permission granted');
     return true;
   } catch (error) {
@@ -42,26 +48,27 @@ async function requestMicrophonePermission() {
 async function enableAudioPlayback() {
   try {
     // Create audio context with user gesture for mobile
-    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    const AudioContext =
+      window.AudioContext || (window as any).webkitAudioContext;
     const audioContext = new AudioContext();
-    
+
     if (audioContext.state === 'suspended') {
       console.log('🔊 Resuming audio context for mobile playback...');
       await audioContext.resume();
     }
-    
+
     // Create a brief silent audio to unlock audio playback on mobile
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
-    
+
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
-    
+
     gainNode.gain.value = 0; // Silent
     oscillator.frequency.value = 440;
     oscillator.start();
     oscillator.stop(audioContext.currentTime + 0.1);
-    
+
     console.log('✅ Audio playback enabled for mobile');
     return true;
   } catch (error) {
@@ -74,14 +81,15 @@ export type ConversationalAIHandle = {
   sendContextUpdate: (text: string) => void;
 };
 
-export default forwardRef(function ConversationalAI({
-  dom,
-  onUserMessage,
-  onAgentMessage,
-  onModeChange,
-  onConnect,
-  onDisconnect,
-  onError,
+export default forwardRef(function ConversationalAI(
+  {
+    dom,
+    onUserMessage,
+    onAgentMessage,
+    onModeChange,
+    onConnect,
+    onDisconnect,
+    onError,
     checkMicrophonePermission,
     getDeviceInfos,
     updateDiagnosticStep,
@@ -90,30 +98,33 @@ export default forwardRef(function ConversationalAI({
     recordButtonPressed,
     recordSensorShake,
     recordCameraPhoto,
-  autoStart = false,
-  isVisible = false
-  
-}: {
-  dom: DOMProps;
-  onUserMessage?: (message: string) => void;
-  onAgentMessage?: (message: string) => void;
-  onModeChange?: (mode: 'listening' | 'speaking' | 'thinking') => void;
-  onConnect?: () => void;
-  onDisconnect?: () => void;
-  onError?: (error: Error) => void;
+    autoStart = false,
+    isVisible = false,
+  }: {
+    dom: DOMProps;
+    onUserMessage?: (message: string) => void;
+    onAgentMessage?: (message: string) => void;
+    onModeChange?: (mode: 'listening' | 'speaking' | 'thinking') => void;
+    onConnect?: () => void;
+    onDisconnect?: () => void;
+    onError?: (error: Error) => void;
     checkMicrophonePermission: () => string;
-    getDeviceInfos:  () => string;
-    updateDiagnosticStep:  () => number;
-    updatePhraseToRead:  () => string;
-    updateColorToShow:  () => string;
-    recordButtonPressed:  () => string;
-    recordSensorShake:  () => string;
-    recordCameraPhoto:  () => string;
-  autoStart?: boolean;
-  isVisible?: boolean
-}, ref) {
+    getDeviceInfos: () => string;
+    updateDiagnosticStep: () => number;
+    updatePhraseToRead: () => string;
+    updateColorToShow: () => string;
+    recordButtonPressed: () => string;
+    recordSensorShake: () => string;
+    recordCameraPhoto: () => string;
+    autoStart?: boolean;
+    isVisible?: boolean;
+  },
+  ref
+) {
   const [isInitialized, setIsInitialized] = useState(false);
-  const [currentMode, setCurrentMode] = useState<'listening' | 'speaking' | 'thinking' | 'idle'>('idle');
+  const [currentMode, setCurrentMode] = useState<
+    'listening' | 'speaking' | 'thinking' | 'idle'
+  >('idle');
   const [hasPermission, setHasPermission] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(false);
   const [lastUserMessage, setLastUserMessage] = useState('');
@@ -124,19 +135,33 @@ export default forwardRef(function ConversationalAI({
   const [connectionRetries, setConnectionRetries] = useState(0);
   const [manualStartRequested, setManualStartRequested] = useState(false);
   const maxRetries = 3;
-  
+
   // Detect mobile device with enhanced detection
   useEffect(() => {
     const checkMobile = () => {
       if (typeof window !== 'undefined' && typeof navigator !== 'undefined') {
         const userAgent = navigator.userAgent.toLowerCase();
-        const mobileKeywords = ['android', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone', 'mobile'];
-        const isMobileDevice = mobileKeywords.some(keyword => userAgent.includes(keyword)) || 
-                              window.innerWidth <= 768 ||
-                              'ontouchstart' in window ||
-                              navigator.maxTouchPoints > 0;
+        const mobileKeywords = [
+          'android',
+          'iphone',
+          'ipad',
+          'ipod',
+          'blackberry',
+          'windows phone',
+          'mobile',
+        ];
+        const isMobileDevice =
+          mobileKeywords.some((keyword) => userAgent.includes(keyword)) ||
+          window.innerWidth <= 768 ||
+          'ontouchstart' in window ||
+          navigator.maxTouchPoints > 0;
         setIsMobile(isMobileDevice);
-        console.log('📱 Mobile device detected:', isMobileDevice, 'UserAgent:', userAgent);
+        console.log(
+          '📱 Mobile device detected:',
+          isMobileDevice,
+          'UserAgent:',
+          userAgent
+        );
       }
     };
 
@@ -154,7 +179,7 @@ export default forwardRef(function ConversationalAI({
       setCurrentMode('idle');
       setConnectionRetries(0);
       onConnect?.();
-      
+
       // REMOVED: Auto-trigger first message - now only manual control
       console.log('✅ Conversation connected - waiting for manual control');
     },
@@ -168,7 +193,7 @@ export default forwardRef(function ConversationalAI({
     },
     onMessage: (message) => {
       console.log('📨 ElevenLabs message received:', message);
-      
+
       if (message.source === 'user') {
         console.log('🗣️ User message from ElevenLabs:', message.message);
         setLastUserMessage(message.message);
@@ -177,9 +202,11 @@ export default forwardRef(function ConversationalAI({
         console.log('🤖 Agent message from ElevenLabs:', message.message);
         setLastAgentMessage(message.message);
         onAgentMessage?.(message.message);
-        
+
         if (!conversationStarted) {
-          console.log('✅ Agent has started speaking - conversation is now active');
+          console.log(
+            '✅ Agent has started speaking - conversation is now active'
+          );
           setConversationStarted(true);
         }
       }
@@ -191,7 +218,7 @@ export default forwardRef(function ConversationalAI({
     },
     onError: (error) => {
       console.error('❌ ElevenLabs conversation error:', error);
-      setConnectionRetries(prev => prev + 1);
+      setConnectionRetries((prev) => prev + 1);
       onError?.(new Error(error.message || 'Conversation error'));
     },
   });
@@ -199,10 +226,10 @@ export default forwardRef(function ConversationalAI({
   const startConversation = useCallback(async () => {
     try {
       console.log('🚀 Starting ElevenLabs conversation manually...');
-      
+
       setUserInteracted(true);
       setManualStartRequested(true);
-      
+
       // Enable audio playback first (critical for mobile)
       if (!audioEnabled) {
         console.log('🔊 Enabling audio playback for mobile...');
@@ -211,20 +238,24 @@ export default forwardRef(function ConversationalAI({
           setAudioEnabled(true);
         }
       }
-      
+
       console.log('check mic permission:', hasPermission);
       // Request microphone permission
       if (!hasPermission) {
         const granted = await requestMicrophonePermission();
         if (!granted) {
-          throw new Error('Microphone permission is required for voice conversation');
+          throw new Error(
+            'Microphone permission is required for voice conversation'
+          );
         }
         setHasPermission(true);
       }
 
       const agentId = process.env.EXPO_PUBLIC_ELEVENLABS_AGENT_ID;
       if (!agentId) {
-        throw new Error('ElevenLabs Agent ID not configured. Please set EXPO_PUBLIC_ELEVENLABS_AGENT_ID in your environment variables.');
+        throw new Error(
+          'ElevenLabs Agent ID not configured. Please set EXPO_PUBLIC_ELEVENLABS_AGENT_ID in your environment variables.'
+        );
       }
 
       console.log('🎤 Starting conversation with agent:', agentId);
@@ -239,7 +270,7 @@ export default forwardRef(function ConversationalAI({
       const deviceInfo = await diagnosticTools.get_device_info();
       const microphonePermission = await checkMicrophonePermission;
       console.log('microphonePermission:', microphonePermission);
-      
+
       // Start the conversation with mobile-optimized settings
       await conversation.startSession({
         agentId: agentId,
@@ -254,15 +285,15 @@ export default forwardRef(function ConversationalAI({
           language: deviceInfo.language,
         },
         clientTools: {
-       requestMicrophonePermission:requestMicrophonePermission,
-        checkMicrophonePermission: checkMicrophonePermission,
-    getDeviceInfos: getDeviceInfos,
-    updateDiagnosticStep: updateDiagnosticStep,
-    updatePhraseToRead: updatePhraseToRead,
-    updateColorToShow: updateColorToShow,
-    recordButtonPressed: recordButtonPressed,
-    recordSensorShake: recordSensorShake,
-    recordCameraPhoto: recordCameraPhoto,
+          requestMicrophonePermission: requestMicrophonePermission,
+          checkMicrophonePermission: checkMicrophonePermission,
+          getDeviceInfos: getDeviceInfos,
+          updateDiagnosticStep: updateDiagnosticStep,
+          updatePhraseToRead: updatePhraseToRead,
+          updateColorToShow: updateColorToShow,
+          recordButtonPressed: recordButtonPressed,
+          recordSensorShake: recordSensorShake,
+          recordCameraPhoto: recordCameraPhoto,
         } /* {
           getDeviceInfos: diagnosticTools.get_device_info,
           updateDiagnosticStep: async ({ step }) => {
@@ -302,15 +333,19 @@ export default forwardRef(function ConversationalAI({
           },
         },
       });
-      conversation
+      conversation;
 
-      console.log('✅ ElevenLabs conversation started successfully - ready for manual control');
+      console.log(
+        '✅ ElevenLabs conversation started successfully - ready for manual control'
+      );
     } catch (error) {
       console.error('❌ Failed to start conversation:', error);
-      
+
       // Retry logic for mobile
       if (connectionRetries < maxRetries && isMobile) {
-        console.log(`🔄 Retrying connection (${connectionRetries + 1}/${maxRetries})...`);
+        console.log(
+          `🔄 Retrying connection (${connectionRetries + 1}/${maxRetries})...`
+        );
         setTimeout(() => {
           startConversation();
         }, 2000 * (connectionRetries + 1)); // Exponential backoff
@@ -319,9 +354,17 @@ export default forwardRef(function ConversationalAI({
         setManualStartRequested(false);
       }
     }
-  }, [conversation, onError, hasPermission, audioEnabled, onConnect, isMobile, connectionRetries]);
+  }, [
+    conversation,
+    onError,
+    hasPermission,
+    audioEnabled,
+    onConnect,
+    isMobile,
+    connectionRetries,
+  ]);
 
-   useImperativeHandle(ref, () => ({
+  useImperativeHandle(ref, () => ({
     sendContextUpdate: (text: string) => {
       conversation.sendContextUpdate(text);
     },
@@ -346,9 +389,9 @@ export default forwardRef(function ConversationalAI({
   // REMOVED: Auto-start useEffect - conversation only starts when manually triggered
   // No auto-start behavior based on autoStart prop or any other lifecycle hooks
   useEffect(() => {
-      console.log('🚀 use effect autoStart', autoStart);
-    if(autoStart) {
-        startConversation();
+    console.log('🚀 use effect autoStart', autoStart);
+    if (autoStart) {
+      startConversation();
     }
   }, [autoStart]);
 
@@ -408,7 +451,7 @@ export default forwardRef(function ConversationalAI({
           connectionSettings: {
             retryCount: connectionRetries,
             maxRetries,
-          }
+          },
         };
       },
     };
@@ -422,8 +465,8 @@ export default forwardRef(function ConversationalAI({
 
   const handleButtonPress = async () => {
     setUserInteracted(true);
-    
-        console.log('handleButtonPress conversation.status:', conversation.status);
+
+    console.log('handleButtonPress conversation.status:', conversation.status);
     if (conversation.status === 'disconnected') {
       // Enable audio on first user interaction (required for mobile)
       if (!audioEnabled) {
@@ -431,7 +474,7 @@ export default forwardRef(function ConversationalAI({
         const enabled = await enableAudioPlayback();
         setAudioEnabled(enabled);
       }
-      
+
       await startConversation();
     } else {
       await stopConversation();
@@ -442,7 +485,7 @@ export default forwardRef(function ConversationalAI({
     if (conversation.status === 'connecting') {
       return <Loader size={32} color="#E2E8F0" strokeWidth={1.5} />;
     }
-    
+
     if (conversation.status === 'connected') {
       switch (currentMode) {
         case 'listening':
@@ -460,17 +503,21 @@ export default forwardRef(function ConversationalAI({
 
   const getStatusText = () => {
     if (conversation.status === 'connecting') {
-      return isMobile ? 'Connecting to Piko... (mobile)' : 'Connecting to Piko...';
+      return isMobile
+        ? 'Connecting to Piko... (mobile)'
+        : 'Connecting to Piko...';
     }
-    
+
     if (conversation.status === 'connected') {
       if (!conversationStarted) {
         return 'Connected - ready for conversation';
       }
-      
+
       switch (currentMode) {
         case 'listening':
-          return isMobile ? 'Listening... (speak clearly)' : 'Listening for your response...';
+          return isMobile
+            ? 'Listening... (speak clearly)'
+            : 'Listening for your response...';
         case 'speaking':
           return 'Piko is speaking...';
         case 'thinking':
@@ -479,23 +526,25 @@ export default forwardRef(function ConversationalAI({
           return 'Voice conversation active';
       }
     }
-    
+
     if (!audioEnabled && userInteracted) {
       return 'Enabling audio for mobile...';
     }
-    
+
     if (connectionRetries > 0) {
       return `Retrying connection... (${connectionRetries}/${maxRetries})`;
     }
-    
-    return isMobile ? 'Tap to start voice conversation (mobile)' : 'Tap to start voice conversation';
+
+    return isMobile
+      ? 'Tap to start voice conversation (mobile)'
+      : 'Tap to start voice conversation';
   };
 
   const getButtonColor = () => {
     if (conversation.status === 'connecting') {
       return '#6B7280'; // Gray for connecting
     }
-    
+
     if (conversation.status === 'connected') {
       switch (currentMode) {
         case 'listening':
@@ -508,21 +557,23 @@ export default forwardRef(function ConversationalAI({
           return '#3B82F6'; // Blue for connected
       }
     }
-    
+
     if (connectionRetries > 0) {
       return '#EF4444'; // Red for retry
     }
-    
+
     return '#3B82F6'; // Blue for disconnected
   };
 
-  const isDisabled = conversation.status === 'connecting' || (connectionRetries >= maxRetries);
+  const isDisabled =
+    conversation.status === 'connecting' || connectionRetries >= maxRetries;
 
-  return isVisible ? (<View style={styles.container}>
+  return isVisible ? (
+    <View style={styles.container}>
       <Pressable
         style={[
           styles.callButton,
-          { 
+          {
             backgroundColor: `${getButtonColor()}20`,
             opacity: isDisabled ? 0.6 : 1,
           },
@@ -531,78 +582,76 @@ export default forwardRef(function ConversationalAI({
         disabled={isDisabled}
       >
         <View
-          style={[
-            styles.buttonInner,
-            { backgroundColor: getButtonColor() },
-          ]}
+          style={[styles.buttonInner, { backgroundColor: getButtonColor() }]}
         >
           {getButtonIcon()}
         </View>
       </Pressable>
-      
-      <Text style={styles.statusText}>
-        {getStatusText()}
-      </Text>
-      
+
+      <Text style={styles.statusText}>{getStatusText()}</Text>
+
       {isMobile && (
         <Text style={styles.mobileHint}>
-          {conversation.status === 'disconnected' 
-            ? 'Optimized for mobile browsers!' 
+          {conversation.status === 'disconnected'
+            ? 'Optimized for mobile browsers!'
             : conversation.status === 'connected' && currentMode === 'listening'
             ? 'Speak clearly into your microphone'
             : conversation.status === 'connecting'
             ? 'Mobile connection in progress...'
             : conversation.status === 'connected' && !conversationStarted
             ? 'Ready for manual conversation control'
-            : ''
-          }
+            : ''}
         </Text>
       )}
-      
+
       {conversation.status === 'connected' && lastAgentMessage && (
         <Text style={styles.lastMessage}>
           Piko: "{lastAgentMessage.substring(0, 50)}..."
         </Text>
       )}
-      
+
       {conversation.status === 'connected' && lastUserMessage && (
         <Text style={styles.lastUserMessage}>
           You: "{lastUserMessage.substring(0, 50)}..."
         </Text>
       )}
-      
+
       {!hasPermission && conversation.status === 'disconnected' && (
         <Text style={styles.permissionText}>
           Microphone permission required
         </Text>
       )}
-      
-      {!audioEnabled && conversation.status === 'disconnected' && userInteracted && (
-        <Text style={styles.audioText}>
-          Enabling audio for voice conversation...
-        </Text>
-      )}
-      
-      {conversation.status === 'connected' && !conversationStarted && manualStartRequested && (
-        <Text style={styles.waitingText}>
-          Connected - conversation ready for manual control
-        </Text>
-      )}
-      
+
+      {!audioEnabled &&
+        conversation.status === 'disconnected' &&
+        userInteracted && (
+          <Text style={styles.audioText}>
+            Enabling audio for voice conversation...
+          </Text>
+        )}
+
+      {conversation.status === 'connected' &&
+        !conversationStarted &&
+        manualStartRequested && (
+          <Text style={styles.waitingText}>
+            Connected - conversation ready for manual control
+          </Text>
+        )}
+
       {connectionRetries > 0 && connectionRetries < maxRetries && (
         <Text style={styles.retryText}>
           Connection retry {connectionRetries}/{maxRetries}
         </Text>
       )}
-      
+
       {connectionRetries >= maxRetries && (
         <Text style={styles.errorText}>
           Connection failed. Please check your internet and try again.
         </Text>
       )}
     </View>
-) : null;
-})
+  ) : null;
+});
 
 const styles = StyleSheet.create({
   container: {
