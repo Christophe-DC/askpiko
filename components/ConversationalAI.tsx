@@ -142,20 +142,6 @@ const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
     const [manualStartRequested, setManualStartRequested] = useState(false);
     const maxRetries = 3;
 
-    
-     useImperativeHandle(ref, () => ({
-    sendContextUpdate: (text: string) => {
-      console.log('Message envoyé à l’IA:', text);
-        conversation.sendContextualUpdate(text);
-    },
-  }));
-
-    useEffect(() => {
-    if (contextUpdate) {
-      conversation?.sendContextualUpdate(contextUpdate);
-    }
-  }, [contextUpdate]);
-
     // Detect mobile device with enhanced detection
     useEffect(() => {
       const checkMobile = () => {
@@ -242,6 +228,22 @@ const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
         onError?.(new Error(error.message || 'Conversation error'));
       },
     });
+
+    
+    
+     useImperativeHandle(ref, () => ({
+    sendContextUpdate: (text: string) => {
+      console.log('Message envoyé à l’IA:', text);
+        conversation.sendContextualUpdate(text);
+    },
+  }));
+
+    useEffect(() => {
+    if (contextUpdate) {
+      conversation?.sendContextualUpdate(contextUpdate);
+    }
+  }, [contextUpdate]);
+
 
     const startConversation = useCallback(async () => {
       try {
