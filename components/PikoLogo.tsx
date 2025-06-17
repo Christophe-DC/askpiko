@@ -133,8 +133,8 @@ const styles = StyleSheet.create({
     borderTopColor: 'transparent',
   },
   logo: {
-    width: 96,
-    height: 96,
+    width: 128,
+    height: 128,
     borderRadius: 48,
     backgroundColor: '#2563eb',
     alignItems: 'center',
