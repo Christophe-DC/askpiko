@@ -213,8 +213,8 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   logoImage: {
-    width: 192,
-    height: 192,
+    width: 256,
+    height: 256,
   },
 });
 
