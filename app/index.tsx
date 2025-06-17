@@ -129,6 +129,7 @@ export default function HomeScreen() {
   const [phraseToRead, setPhraseToRead] = useState('');
   const [sensorTestCompleted, setSensorTestCompleted] = useState(false);
   const [cameraTestCompleted, setCameraTestCompleted] = useState(false);
+const [contextUpdate, setContextUpdate] = useState('');
 
   // Résultats des tests
   const [diagnosticResults, setDiagnosticResults] = useState<
@@ -446,10 +447,12 @@ export default function HomeScreen() {
 
       // Notify AI agent if applicable
       const totalTrue = newGridTestCompleted.filter(Boolean).length;
-      console.log('aiRef.current:', aiRef.current);
+      
+  setContextUpdate(`cell Tapped ${totalTrue}/${TOTAL_CELLS}`);
+     /* console.log('aiRef.current:', aiRef.current);
       aiRef.current?.sendContextUpdate(
         `cell Tapped ${totalTrue}/${TOTAL_CELLS}`
-      );
+      );*/
     }
   };
 
