@@ -131,6 +131,9 @@ export default function HomeScreen() {
   const [sensorTestCompleted, setSensorTestCompleted] = useState(false);
   const [cameraTestCompleted, setCameraTestCompleted] = useState(false);
 const [contextUpdate, setContextUpdate] = useState('');
+  const [currentMode, setCurrentMode] = useState<
+      'listening' | 'speaking' | 'thinking' | 'idle'
+    >('idle');
 
   // Résultats des tests
   const [diagnosticResults, setDiagnosticResults] = useState<
@@ -989,6 +992,7 @@ const [contextUpdate, setContextUpdate] = useState('');
             recordSensorShake={diagnosticTools.recordSensorShake}
             recordCameraPhoto={diagnosticTools.recordCameraPhoto}
             contextUpdate={contextUpdate}
+            currentMode={(mode) => setCurrentMode(mode)}
           />
         </View>
 
