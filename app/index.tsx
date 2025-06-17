@@ -1018,6 +1018,7 @@ const [contextUpdate, setContextUpdate] = useState('');
 
 const styles = StyleSheet.create({
   container: {
+    position: 'relative',
     flex: 1,
   },
   content: {
