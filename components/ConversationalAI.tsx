@@ -140,6 +140,15 @@ const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
     const [manualStartRequested, setManualStartRequested] = useState(false);
     const maxRetries = 3;
 
+    
+     useImperativeHandle(ref, () => ({
+    sendContextUpdate: (text: string) => {
+      console.log('Message envoyé à l’IA:', text);
+        conversation.sendContextualUpdate(text);
+    },
+  }));
+    
+
     // Detect mobile device with enhanced detection
     useEffect(() => {
       const checkMobile = () => {
@@ -368,11 +377,6 @@ const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
       connectionRetries,
     ]);
 
-    useImperativeHandle(ref, () => ({
-      sendContextUpdate: (text: string) => {
-        conversation.sendContextualUpdate(text);
-      },
-    }));
 
     const stopConversation = useCallback(async () => {
       try {
