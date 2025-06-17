@@ -100,6 +100,7 @@ type Props = {
   recordCameraPhoto: () => string;
   autoStart?: boolean;
   isVisible?: boolean;
+  contextUpdate?: string;
 };
 
 const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
@@ -122,6 +123,7 @@ const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
       recordCameraPhoto,
       autoStart = false,
       isVisible = false,
+      contextUpdate = null
     },
     ref
   ) => {
@@ -227,6 +229,20 @@ const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
       },
     });
 
+     useImperativeHandle(ref, () => ({
+    sendContextUpdate: (text: string) => {
+      console.log('Message envoyé à l’IA:', text);
+        conversation.sendContextualUpdate(text);
+    },
+  }));
+
+    useEffect(() => {
+    if (contextUpdate) {
+      conversation?.sendContextualUpdate(contextUpdate);
+    }
+  }, [contextUpdate]);
+
+    
     const startConversation = useCallback(async () => {
       try {
         console.log('🚀 Starting ElevenLabs conversation manually...');
