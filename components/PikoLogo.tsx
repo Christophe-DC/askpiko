@@ -7,23 +7,28 @@ type Props = {
 };
 
 const PikoLogo: React.FC<Props> = ({ isSpeaking, isLoading }) => {
-  const pulse1 = useRef(new Animated.Value(0)).current;
-  const pulse2 = useRef(new Animated.Value(0)).current;
-  const pulse3 = useRef(new Animated.Value(0)).current;
+  const pulses = [
+    useRef(new Animated.Value(0)).current,
+    useRef(new Animated.Value(0)).current,
+    useRef(new Animated.Value(0)).current,
+  ];
+  const pulseAnims = useRef<Animated.CompositeAnimation[]>([]);
+
   const spin = useRef(new Animated.Value(0)).current;
+  const spinAnim = useRef<Animated.CompositeAnimation | null>(null);
 
   // Pulse animation (waves)
   useEffect(() => {
     if (isSpeaking) {
-      const createPulse = (anim: Animated.Value, delay: number) => {
-        return Animated.loop(
+      pulseAnims.current = pulses.map((anim, index) =>
+        Animated.loop(
           Animated.sequence([
-            Animated.delay(delay),
+            Animated.delay(index * 400),
             Animated.timing(anim, {
               toValue: 1,
               duration: 2000,
-              useNativeDriver: true,
               easing: Easing.out(Easing.ease),
+              useNativeDriver: true,
             }),
             Animated.timing(anim, {
               toValue: 0,
@@ -31,25 +36,29 @@ const PikoLogo: React.FC<Props> = ({ isSpeaking, isLoading }) => {
               useNativeDriver: true,
             }),
           ])
-        ).start();
-      };
-      createPulse(pulse1, 0);
-      createPulse(pulse2, 400);
-      createPulse(pulse3, 800);
+        )
+      );
+      pulseAnims.current.forEach((a) => a.start());
+    } else {
+      pulseAnims.current.forEach((a) => a.stop?.());
     }
   }, [isSpeaking]);
 
   // Spinner animation (loading)
   useEffect(() => {
     if (isLoading) {
-      Animated.loop(
+      spin.setValue(0); // Reset before starting
+      spinAnim.current = Animated.loop(
         Animated.timing(spin, {
           toValue: 1,
           duration: 1000,
-          useNativeDriver: true,
           easing: Easing.linear,
+          useNativeDriver: true,
         })
-      ).start();
+      );
+      spinAnim.current.start();
+    } else {
+      spinAnim.current?.stop?.();
     }
   }, [isLoading]);
 
@@ -58,20 +67,21 @@ const PikoLogo: React.FC<Props> = ({ isSpeaking, isLoading }) => {
     outputRange: ['0deg', '360deg'],
   });
 
-  const renderPulse = (scale: Animated.Value) => (
+  const renderPulse = (scaleAnim: Animated.Value, index: number) => (
     <Animated.View
+      key={index}
       style={[
         styles.pulse,
         {
           transform: [
             {
-              scale: scale.interpolate({
+              scale: scaleAnim.interpolate({
                 inputRange: [0, 1],
-                outputRange: [1, 2.5],
+                outputRange: [1, 2 + index * 0.5], // pulsations différenciées
               }),
             },
           ],
-          opacity: scale.interpolate({
+          opacity: scaleAnim.interpolate({
             inputRange: [0, 1],
             outputRange: [0.4, 0],
           }),
@@ -83,13 +93,7 @@ const PikoLogo: React.FC<Props> = ({ isSpeaking, isLoading }) => {
   return (
     <View style={styles.container}>
       {/* Pulses */}
-      {isSpeaking && (
-        <>
-          {renderPulse(pulse1)}
-          {renderPulse(pulse2)}
-          {renderPulse(pulse3)}
-        </>
-      )}
+      {isSpeaking && pulses.map((p, i) => renderPulse(p, i))}
 
       {/* Spinner */}
       {isLoading && (
@@ -109,6 +113,7 @@ const PikoLogo: React.FC<Props> = ({ isSpeaking, isLoading }) => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     width: 128,
@@ -136,6 +141,7 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 48,
+    backgroundColor: '#2563eb',
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#2563eb',
