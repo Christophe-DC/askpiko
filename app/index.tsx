@@ -1158,8 +1158,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   pikoVoice: {
-    width: 100,
-    height: 100,
+    width: 120,
+    height: 120,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: designTokens.spacing.xl,
+    ...designTokens.shadows.lg,    
   },
   hiddenVoiceContainer: {    
     position: 'absolute',
