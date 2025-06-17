@@ -82,220 +82,223 @@ export type ConversationalAIHandle = {
   sendContextUpdate: (text: string) => void;
 };
 
-export default forwardRef(function ConversationalAI(
-  {
-    dom,
-    onUserMessage,
-    onAgentMessage,
-    onModeChange,
-    onConnect,
-    onDisconnect,
-    onError,
-    checkMicrophonePermission,
-    getDeviceInfos,
-    updateDiagnosticStep,
-    updatePhraseToRead,
-    updateColorToShow,
-    recordButtonPressed,
-    recordSensorShake,
-    recordCameraPhoto,
-    autoStart = false,
-    isVisible = false,
-  }: {
-    dom: DOMProps;
-    onUserMessage?: (message: string) => void;
-    onAgentMessage?: (message: string) => void;
-    onModeChange?: (mode: 'listening' | 'speaking' | 'thinking') => void;
-    onConnect?: () => void;
-    onDisconnect?: () => void;
-    onError?: (error: Error) => void;
-    checkMicrophonePermission: () => string;
-    getDeviceInfos: () => string;
-    updateDiagnosticStep: () => number;
-    updatePhraseToRead: () => string;
-    updateColorToShow: () => string;
-    recordButtonPressed: () => string;
-    recordSensorShake: () => string;
-    recordCameraPhoto: () => string;
-    autoStart?: boolean;
-    isVisible?: boolean;
-  },
-  ref
-) {
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [currentMode, setCurrentMode] = useState<
-    'listening' | 'speaking' | 'thinking' | 'idle'
-  >('idle');
-  const [hasPermission, setHasPermission] = useState(false);
-  const [audioEnabled, setAudioEnabled] = useState(false);
-  const [lastUserMessage, setLastUserMessage] = useState('');
-  const [lastAgentMessage, setLastAgentMessage] = useState('');
-  const [conversationStarted, setConversationStarted] = useState(false);
-  const [userInteracted, setUserInteracted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [connectionRetries, setConnectionRetries] = useState(0);
-  const [manualStartRequested, setManualStartRequested] = useState(false);
-  const maxRetries = 3;
+type Props = {
+  dom: DOMProps;
+  onUserMessage?: (message: string) => void;
+  onAgentMessage?: (message: string) => void;
+  onModeChange?: (mode: 'listening' | 'speaking' | 'thinking') => void;
+  onConnect?: () => void;
+  onDisconnect?: () => void;
+  onError?: (error: Error) => void;
+  checkMicrophonePermission: () => string;
+  getDeviceInfos: () => string;
+  updateDiagnosticStep: () => number;
+  updatePhraseToRead: () => string;
+  updateColorToShow: () => string;
+  recordButtonPressed: () => string;
+  recordSensorShake: () => string;
+  recordCameraPhoto: () => string;
+  autoStart?: boolean;
+  isVisible?: boolean;
+};
 
-  // Detect mobile device with enhanced detection
-  useEffect(() => {
-    const checkMobile = () => {
-      if (typeof window !== 'undefined' && typeof navigator !== 'undefined') {
-        const userAgent = navigator.userAgent.toLowerCase();
-        const mobileKeywords = [
-          'android',
-          'iphone',
-          'ipad',
-          'ipod',
-          'blackberry',
-          'windows phone',
-          'mobile',
-        ];
-        const isMobileDevice =
-          mobileKeywords.some((keyword) => userAgent.includes(keyword)) ||
-          window.innerWidth <= 768 ||
-          'ontouchstart' in window ||
-          navigator.maxTouchPoints > 0;
-        setIsMobile(isMobileDevice);
-        console.log(
-          '📱 Mobile device detected:',
-          isMobileDevice,
-          'UserAgent:',
-          userAgent
-        );
-      }
-    };
-
-    checkMobile();
-    if (typeof window !== 'undefined') {
-      window.addEventListener('resize', checkMobile);
-      return () => window.removeEventListener('resize', checkMobile);
-    }
-  }, []);
-
-  const conversation = useConversation({
-    onConnect: () => {
-      console.log('🔗 ElevenLabs conversation connected');
-      setIsInitialized(true);
-      setCurrentMode('idle');
-      setConnectionRetries(0);
-      onConnect?.();
-
-      // REMOVED: Auto-trigger first message - now only manual control
-      console.log('✅ Conversation connected - waiting for manual control');
+const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
+  function ConversationalAI(
+    {
+      dom,
+      onUserMessage,
+      onAgentMessage,
+      onModeChange,
+      onConnect,
+      onDisconnect,
+      onError,
+      checkMicrophonePermission,
+      getDeviceInfos,
+      updateDiagnosticStep,
+      updatePhraseToRead,
+      updateColorToShow,
+      recordButtonPressed,
+      recordSensorShake,
+      recordCameraPhoto,
+      autoStart = false,
+      isVisible = false,
     },
-    onDisconnect: () => {
-      console.log('🔌 ElevenLabs conversation disconnected');
-      setIsInitialized(false);
-      setCurrentMode('idle');
-      setConversationStarted(false);
-      setManualStartRequested(false);
-      onDisconnect?.();
-    },
-    onMessage: (message) => {
-      console.log('📨 ElevenLabs message received:', message);
+    ref
+  ) {
+    const [isInitialized, setIsInitialized] = useState(false);
+    const [currentMode, setCurrentMode] = useState<
+      'listening' | 'speaking' | 'thinking' | 'idle'
+    >('idle');
+    const [hasPermission, setHasPermission] = useState(false);
+    const [audioEnabled, setAudioEnabled] = useState(false);
+    const [lastUserMessage, setLastUserMessage] = useState('');
+    const [lastAgentMessage, setLastAgentMessage] = useState('');
+    const [conversationStarted, setConversationStarted] = useState(false);
+    const [userInteracted, setUserInteracted] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+    const [connectionRetries, setConnectionRetries] = useState(0);
+    const [manualStartRequested, setManualStartRequested] = useState(false);
+    const maxRetries = 3;
 
-      if (message.source === 'user') {
-        console.log('🗣️ User message from ElevenLabs:', message.message);
-        setLastUserMessage(message.message);
-        onUserMessage?.(message.message);
-      } else if (message.source === 'ai') {
-        console.log('🤖 Agent message from ElevenLabs:', message.message);
-        setLastAgentMessage(message.message);
-        onAgentMessage?.(message.message);
-
-        if (!conversationStarted) {
+    // Detect mobile device with enhanced detection
+    useEffect(() => {
+      const checkMobile = () => {
+        if (typeof window !== 'undefined' && typeof navigator !== 'undefined') {
+          const userAgent = navigator.userAgent.toLowerCase();
+          const mobileKeywords = [
+            'android',
+            'iphone',
+            'ipad',
+            'ipod',
+            'blackberry',
+            'windows phone',
+            'mobile',
+          ];
+          const isMobileDevice =
+            mobileKeywords.some((keyword) => userAgent.includes(keyword)) ||
+            window.innerWidth <= 768 ||
+            'ontouchstart' in window ||
+            navigator.maxTouchPoints > 0;
+          setIsMobile(isMobileDevice);
           console.log(
-            '✅ Agent has started speaking - conversation is now active'
+            '📱 Mobile device detected:',
+            isMobileDevice,
+            'UserAgent:',
+            userAgent
           );
-          setConversationStarted(true);
         }
+      };
+
+      checkMobile();
+      if (typeof window !== 'undefined') {
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
       }
-    },
-    onModeChange: (mode) => {
-      console.log('🔄 ElevenLabs mode change:', mode.mode);
-      setCurrentMode(mode.mode);
-      onModeChange?.(mode.mode);
-    },
-    onError: (error) => {
-      console.error('❌ ElevenLabs conversation error:', error);
-      setConnectionRetries((prev) => prev + 1);
-      onError?.(new Error(error.message || 'Conversation error'));
-    },
-  });
+    }, []);
 
-  const startConversation = useCallback(async () => {
-    try {
-      console.log('🚀 Starting ElevenLabs conversation manually...');
+    const conversation = useConversation({
+      onConnect: () => {
+        console.log('🔗 ElevenLabs conversation connected');
+        setIsInitialized(true);
+        setCurrentMode('idle');
+        setConnectionRetries(0);
+        onConnect?.();
 
-      setUserInteracted(true);
-      setManualStartRequested(true);
+        // REMOVED: Auto-trigger first message - now only manual control
+        console.log('✅ Conversation connected - waiting for manual control');
+      },
+      onDisconnect: () => {
+        console.log('🔌 ElevenLabs conversation disconnected');
+        setIsInitialized(false);
+        setCurrentMode('idle');
+        setConversationStarted(false);
+        setManualStartRequested(false);
+        onDisconnect?.();
+      },
+      onMessage: (message) => {
+        console.log('📨 ElevenLabs message received:', message);
 
-      // Enable audio playback first (critical for mobile)
-      if (!audioEnabled) {
-        console.log('🔊 Enabling audio playback for mobile...');
-        const audioUnlocked = await enableAudioPlayback();
-        if (audioUnlocked) {
-          setAudioEnabled(true);
+        if (message.source === 'user') {
+          console.log('🗣️ User message from ElevenLabs:', message.message);
+          setLastUserMessage(message.message);
+          onUserMessage?.(message.message);
+        } else if (message.source === 'ai') {
+          console.log('🤖 Agent message from ElevenLabs:', message.message);
+          setLastAgentMessage(message.message);
+          onAgentMessage?.(message.message);
+
+          if (!conversationStarted) {
+            console.log(
+              '✅ Agent has started speaking - conversation is now active'
+            );
+            setConversationStarted(true);
+          }
         }
-      }
+      },
+      onModeChange: (mode) => {
+        console.log('🔄 ElevenLabs mode change:', mode.mode);
+        setCurrentMode(mode.mode);
+        onModeChange?.(mode.mode);
+      },
+      onError: (error) => {
+        console.error('❌ ElevenLabs conversation error:', error);
+        setConnectionRetries((prev) => prev + 1);
+        onError?.(new Error(error.message || 'Conversation error'));
+      },
+    });
 
-      console.log('check mic permission:', hasPermission);
-      // Request microphone permission
-      if (!hasPermission) {
-        const granted = await requestMicrophonePermission();
-        if (!granted) {
+    const startConversation = useCallback(async () => {
+      try {
+        console.log('🚀 Starting ElevenLabs conversation manually...');
+
+        setUserInteracted(true);
+        setManualStartRequested(true);
+
+        // Enable audio playback first (critical for mobile)
+        if (!audioEnabled) {
+          console.log('🔊 Enabling audio playback for mobile...');
+          const audioUnlocked = await enableAudioPlayback();
+          if (audioUnlocked) {
+            setAudioEnabled(true);
+          }
+        }
+
+        console.log('check mic permission:', hasPermission);
+        // Request microphone permission
+        if (!hasPermission) {
+          const granted = await requestMicrophonePermission();
+          if (!granted) {
+            throw new Error(
+              'Microphone permission is required for voice conversation'
+            );
+          }
+          setHasPermission(true);
+        }
+
+        const agentId = process.env.EXPO_PUBLIC_ELEVENLABS_AGENT_ID;
+        if (!agentId) {
           throw new Error(
-            'Microphone permission is required for voice conversation'
+            'ElevenLabs Agent ID not configured. Please set EXPO_PUBLIC_ELEVENLABS_AGENT_ID in your environment variables.'
           );
         }
-        setHasPermission(true);
-      }
 
-      const agentId = process.env.EXPO_PUBLIC_ELEVENLABS_AGENT_ID;
-      if (!agentId) {
-        throw new Error(
-          'ElevenLabs Agent ID not configured. Please set EXPO_PUBLIC_ELEVENLABS_AGENT_ID in your environment variables.'
-        );
-      }
+        console.log('🎤 Starting conversation with agent:', agentId);
 
-      console.log('🎤 Starting conversation with agent:', agentId);
+        // Reset state
+        setLastUserMessage('');
+        setLastAgentMessage('');
+        setConversationStarted(false);
 
-      // Reset state
-      setLastUserMessage('');
-      setLastAgentMessage('');
-      setConversationStarted(false);
+        // Get device platform info
+        const platformInfo = isMobile ? 'mobile' : 'web';
+        const deviceInfo = await diagnosticTools.get_device_info();
+        const microphonePermission = await checkMicrophonePermission;
+        console.log('microphonePermission:', microphonePermission);
 
-      // Get device platform info
-      const platformInfo = isMobile ? 'mobile' : 'web';
-      const deviceInfo = await diagnosticTools.get_device_info();
-      const microphonePermission = await checkMicrophonePermission;
-      console.log('microphonePermission:', microphonePermission);
-
-      // Start the conversation with mobile-optimized settings
-      await conversation.startSession({
-        agentId: agentId,
-        dynamicVariables: {
-          platform: platformInfo,
-          microphonePermission: microphonePermission,
-          userAgent: navigator.userAgent,
-          timestamp: new Date().toISOString(),
-          audioEnabled: audioEnabled.toString(),
-          deviceType: isMobile ? 'mobile' : 'desktop',
-          screenResolution: deviceInfo.screenResolution,
-          language: deviceInfo.language,
-        },
-        clientTools: {
-          requestMicrophonePermission: requestMicrophonePermission,
-          checkMicrophonePermission: checkMicrophonePermission,
-          getDeviceInfos: getDeviceInfos,
-          updateDiagnosticStep: updateDiagnosticStep,
-          updatePhraseToRead: updatePhraseToRead,
-          updateColorToShow: updateColorToShow,
-          recordButtonPressed: recordButtonPressed,
-          recordSensorShake: recordSensorShake,
-          recordCameraPhoto: recordCameraPhoto,
-        } /* {
+        // Start the conversation with mobile-optimized settings
+        await conversation.startSession({
+          agentId: agentId,
+          dynamicVariables: {
+            platform: platformInfo,
+            microphonePermission: microphonePermission,
+            userAgent: navigator.userAgent,
+            timestamp: new Date().toISOString(),
+            audioEnabled: audioEnabled.toString(),
+            deviceType: isMobile ? 'mobile' : 'desktop',
+            screenResolution: deviceInfo.screenResolution,
+            language: deviceInfo.language,
+          },
+          clientTools: {
+            requestMicrophonePermission: requestMicrophonePermission,
+            checkMicrophonePermission: checkMicrophonePermission,
+            getDeviceInfos: getDeviceInfos,
+            updateDiagnosticStep: updateDiagnosticStep,
+            updatePhraseToRead: updatePhraseToRead,
+            updateColorToShow: updateColorToShow,
+            recordButtonPressed: recordButtonPressed,
+            recordSensorShake: recordSensorShake,
+            recordCameraPhoto: recordCameraPhoto,
+          } /* {
           getDeviceInfos: diagnosticTools.get_device_info,
           updateDiagnosticStep: async ({ step }) => {
             console.log(step);
@@ -309,105 +312,169 @@ export default forwardRef(function ConversationalAI(
           vibrate_device: diagnosticTools.vibrate_device,
           get_network_info: diagnosticTools.get_network_info,
         },*/,
-        overrides: {
-          /*agent: {
+          overrides: {
+            /*agent: {
             firstMessage:
               "Hi, I'm Piko — your AI assistant for smartphone diagnostics. I'll help you test your device step by step. Are you ready to begin?",
           },*/
-          // Mobile-optimized audio settings
-          audio: {
-            inputGain: isMobile ? 1.3 : 1.0, // Higher input gain for mobile
-            outputGain: isMobile ? 1.2 : 1.0, // Higher output gain for mobile
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true, // Important for mobile
-            sampleRate: isMobile ? 16000 : 24000, // Lower sample rate for mobile stability
-          },
-          // Mobile-optimized conversation settings
-          conversation: {
-            turnDetection: {
-              type: 'server_vad',
-              threshold: isMobile ? 0.6 : 0.5, // Higher threshold for mobile (less sensitive)
-              prefixPaddingMs: isMobile ? 400 : 300,
-              silenceDurationMs: isMobile ? 1000 : 800, // Longer silence detection for mobile
+            // Mobile-optimized audio settings
+            audio: {
+              inputGain: isMobile ? 1.3 : 1.0, // Higher input gain for mobile
+              outputGain: isMobile ? 1.2 : 1.0, // Higher output gain for mobile
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true, // Important for mobile
+              sampleRate: isMobile ? 16000 : 24000, // Lower sample rate for mobile stability
+            },
+            // Mobile-optimized conversation settings
+            conversation: {
+              turnDetection: {
+                type: 'server_vad',
+                threshold: isMobile ? 0.6 : 0.5, // Higher threshold for mobile (less sensitive)
+                prefixPaddingMs: isMobile ? 400 : 300,
+                silenceDurationMs: isMobile ? 1000 : 800, // Longer silence detection for mobile
+              },
             },
           },
-        },
-      });
-      conversation;
+        });
+        conversation;
 
-      console.log(
-        '✅ ElevenLabs conversation started successfully - ready for manual control'
-      );
-    } catch (error) {
-      console.error('❌ Failed to start conversation:', error);
-
-      // Retry logic for mobile
-      if (connectionRetries < maxRetries && isMobile) {
         console.log(
-          `🔄 Retrying connection (${connectionRetries + 1}/${maxRetries})...`
+          '✅ ElevenLabs conversation started successfully - ready for manual control'
         );
-        setTimeout(() => {
-          startConversation();
-        }, 2000 * (connectionRetries + 1)); // Exponential backoff
-      } else {
-        onError?.(error as Error);
-        setManualStartRequested(false);
+      } catch (error) {
+        console.error('❌ Failed to start conversation:', error);
+
+        // Retry logic for mobile
+        if (connectionRetries < maxRetries && isMobile) {
+          console.log(
+            `🔄 Retrying connection (${connectionRetries + 1}/${maxRetries})...`
+          );
+          setTimeout(() => {
+            startConversation();
+          }, 2000 * (connectionRetries + 1)); // Exponential backoff
+        } else {
+          onError?.(error as Error);
+          setManualStartRequested(false);
+        }
       }
-    }
-  }, [
-    conversation,
-    onError,
-    hasPermission,
-    audioEnabled,
-    onConnect,
-    isMobile,
-    connectionRetries,
-  ]);
-
-  useImperativeHandle(ref, () => ({
-    sendContextUpdate: (text: string) => {
-      conversation.sendContextualUpdate(text);
-    },
-  }));
-
-  const stopConversation = useCallback(async () => {
-    try {
-      console.log('🔚 Stopping ElevenLabs conversation...');
-      await conversation.endSession();
-      setCurrentMode('idle');
-      setLastUserMessage('');
-      setLastAgentMessage('');
-      setConversationStarted(false);
-      setConnectionRetries(0);
-      setManualStartRequested(false);
-    } catch (error) {
-      console.error('❌ Failed to stop conversation:', error);
-      onError?.(error as Error);
-    }
-  }, [conversation, onError]);
-
-  // REMOVED: Auto-start useEffect - conversation only starts when manually triggered
-  // No auto-start behavior based on autoStart prop or any other lifecycle hooks
-  useEffect(() => {
-    console.log('🚀 use effect autoStart', autoStart);
-    if (autoStart) {
-      startConversation();
-    }
-  }, [autoStart]);
-
-  // Expose conversation methods globally for external control
-  useEffect(() => {
-    (window as any).elevenLabsConversation = {
-      start: startConversation,
-      stop: stopConversation,
+    }, [
       conversation,
-      status: conversation.status,
-      mode: currentMode,
-      isConnected: conversation.status === 'connected',
-      isListening: currentMode === 'listening',
-      isSpeaking: currentMode === 'speaking',
-      isThinking: currentMode === 'thinking',
+      onError,
+      hasPermission,
+      audioEnabled,
+      onConnect,
+      isMobile,
+      connectionRetries,
+    ]);
+
+    useImperativeHandle(ref, () => ({
+      sendContextUpdate: (text: string) => {
+        conversation.sendContextualUpdate(text);
+      },
+    }));
+
+    const stopConversation = useCallback(async () => {
+      try {
+        console.log('🔚 Stopping ElevenLabs conversation...');
+        await conversation.endSession();
+        setCurrentMode('idle');
+        setLastUserMessage('');
+        setLastAgentMessage('');
+        setConversationStarted(false);
+        setConnectionRetries(0);
+        setManualStartRequested(false);
+      } catch (error) {
+        console.error('❌ Failed to stop conversation:', error);
+        onError?.(error as Error);
+      }
+    }, [conversation, onError]);
+
+    // REMOVED: Auto-start useEffect - conversation only starts when manually triggered
+    // No auto-start behavior based on autoStart prop or any other lifecycle hooks
+    useEffect(() => {
+      console.log('🚀 use effect autoStart', autoStart);
+      if (autoStart) {
+        startConversation();
+      }
+    }, [autoStart]);
+
+    // Expose conversation methods globally for external control
+    useEffect(() => {
+      (window as any).elevenLabsConversation = {
+        start: startConversation,
+        stop: stopConversation,
+        conversation,
+        status: conversation.status,
+        mode: currentMode,
+        isConnected: conversation.status === 'connected',
+        isListening: currentMode === 'listening',
+        isSpeaking: currentMode === 'speaking',
+        isThinking: currentMode === 'thinking',
+        lastUserMessage,
+        lastAgentMessage,
+        conversationStarted,
+        audioEnabled,
+        hasPermission,
+        isMobile,
+        connectionRetries,
+        manualStartRequested,
+        sendMessage: async (message: string) => {
+          if (conversation.status === 'connected') {
+            console.log(
+              '📤 Sending message to agent via conversation:',
+              message
+            );
+            // The conversation API handles message sending automatically
+            return true;
+          }
+          return false;
+        },
+        triggerAgentSpeech: async () => {
+          if (conversation.status === 'connected') {
+            console.log(
+              '🎯 Agent speech is handled automatically by ElevenLabs'
+            );
+            return true;
+          }
+          return false;
+        },
+        enableAudio: async () => {
+          console.log('🔊 Manually enabling audio...');
+          const enabled = await enableAudioPlayback();
+          setAudioEnabled(enabled);
+          return enabled;
+        },
+        // Mobile-specific methods
+        optimizeForMobile: () => {
+          console.log('📱 Mobile optimizations already applied');
+          return {
+            isMobile,
+            audioSettings: {
+              inputGain: 1.3,
+              outputGain: 1.2,
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true,
+            },
+            connectionSettings: {
+              retryCount: connectionRetries,
+              maxRetries,
+            },
+          };
+        },
+      };
+
+      return () => {
+        if ((window as any).elevenLabsConversation) {
+          delete (window as any).elevenLabsConversation;
+        }
+      };
+    }, [
+      startConversation,
+      stopConversation,
+      conversation,
+      currentMode,
       lastUserMessage,
       lastAgentMessage,
       conversationStarted,
@@ -416,247 +483,206 @@ export default forwardRef(function ConversationalAI(
       isMobile,
       connectionRetries,
       manualStartRequested,
-      sendMessage: async (message: string) => {
-        if (conversation.status === 'connected') {
-          console.log('📤 Sending message to agent via conversation:', message);
-          // The conversation API handles message sending automatically
-          return true;
+    ]);
+
+    const handleButtonPress = async () => {
+      setUserInteracted(true);
+
+      console.log(
+        'handleButtonPress conversation.status:',
+        conversation.status
+      );
+      if (conversation.status === 'disconnected') {
+        // Enable audio on first user interaction (required for mobile)
+        if (!audioEnabled) {
+          console.log('🔊 Enabling audio on user interaction...');
+          const enabled = await enableAudioPlayback();
+          setAudioEnabled(enabled);
         }
-        return false;
-      },
-      triggerAgentSpeech: async () => {
-        if (conversation.status === 'connected') {
-          console.log('🎯 Agent speech is handled automatically by ElevenLabs');
-          return true;
-        }
-        return false;
-      },
-      enableAudio: async () => {
-        console.log('🔊 Manually enabling audio...');
-        const enabled = await enableAudioPlayback();
-        setAudioEnabled(enabled);
-        return enabled;
-      },
-      // Mobile-specific methods
-      optimizeForMobile: () => {
-        console.log('📱 Mobile optimizations already applied');
-        return {
-          isMobile,
-          audioSettings: {
-            inputGain: 1.3,
-            outputGain: 1.2,
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true,
-          },
-          connectionSettings: {
-            retryCount: connectionRetries,
-            maxRetries,
-          },
-        };
-      },
+
+        await startConversation();
+      } else {
+        await stopConversation();
+      }
     };
 
-    return () => {
-      if ((window as any).elevenLabsConversation) {
-        delete (window as any).elevenLabsConversation;
+    const getButtonIcon = () => {
+      if (conversation.status === 'connecting') {
+        return <Loader size={32} color="#E2E8F0" strokeWidth={1.5} />;
       }
+
+      if (conversation.status === 'connected') {
+        switch (currentMode) {
+          case 'listening':
+            return <Mic size={32} color="#E2E8F0" strokeWidth={1.5} />;
+          case 'speaking':
+            return <Volume2 size={32} color="#E2E8F0" strokeWidth={1.5} />;
+          case 'thinking':
+            return <VolumeX size={32} color="#E2E8F0" strokeWidth={1.5} />;
+          default:
+            return <MicOff size={32} color="#E2E8F0" strokeWidth={1.5} />;
+        }
+      }
+      return <Mic size={32} color="#E2E8F0" strokeWidth={1.5} />;
     };
-  }, [startConversation, stopConversation, conversation, currentMode, lastUserMessage, lastAgentMessage, conversationStarted, audioEnabled, hasPermission, isMobile, connectionRetries, manualStartRequested]);
 
-  const handleButtonPress = async () => {
-    setUserInteracted(true);
-
-    console.log('handleButtonPress conversation.status:', conversation.status);
-    if (conversation.status === 'disconnected') {
-      // Enable audio on first user interaction (required for mobile)
-      if (!audioEnabled) {
-        console.log('🔊 Enabling audio on user interaction...');
-        const enabled = await enableAudioPlayback();
-        setAudioEnabled(enabled);
+    const getStatusText = () => {
+      if (conversation.status === 'connecting') {
+        return isMobile
+          ? 'Connecting to Piko... (mobile)'
+          : 'Connecting to Piko...';
       }
 
-      await startConversation();
-    } else {
-      await stopConversation();
-    }
-  };
+      if (conversation.status === 'connected') {
+        if (!conversationStarted) {
+          return 'Connected - ready for conversation';
+        }
 
-  const getButtonIcon = () => {
-    if (conversation.status === 'connecting') {
-      return <Loader size={32} color="#E2E8F0" strokeWidth={1.5} />;
-    }
-
-    if (conversation.status === 'connected') {
-      switch (currentMode) {
-        case 'listening':
-          return <Mic size={32} color="#E2E8F0" strokeWidth={1.5} />;
-        case 'speaking':
-          return <Volume2 size={32} color="#E2E8F0" strokeWidth={1.5} />;
-        case 'thinking':
-          return <VolumeX size={32} color="#E2E8F0" strokeWidth={1.5} />;
-        default:
-          return <MicOff size={32} color="#E2E8F0" strokeWidth={1.5} />;
+        switch (currentMode) {
+          case 'listening':
+            return isMobile
+              ? 'Listening... (speak clearly)'
+              : 'Listening for your response...';
+          case 'speaking':
+            return 'Piko is speaking...';
+          case 'thinking':
+            return 'Piko is thinking...';
+          default:
+            return 'Voice conversation active';
+        }
       }
-    }
-    return <Mic size={32} color="#E2E8F0" strokeWidth={1.5} />;
-  };
 
-  const getStatusText = () => {
-    if (conversation.status === 'connecting') {
+      if (!audioEnabled && userInteracted) {
+        return 'Enabling audio for mobile...';
+      }
+
+      if (connectionRetries > 0) {
+        return `Retrying connection... (${connectionRetries}/${maxRetries})`;
+      }
+
       return isMobile
-        ? 'Connecting to Piko... (mobile)'
-        : 'Connecting to Piko...';
-    }
+        ? 'Tap to start voice conversation (mobile)'
+        : 'Tap to start voice conversation';
+    };
 
-    if (conversation.status === 'connected') {
-      if (!conversationStarted) {
-        return 'Connected - ready for conversation';
+    const getButtonColor = () => {
+      if (conversation.status === 'connecting') {
+        return '#6B7280'; // Gray for connecting
       }
 
-      switch (currentMode) {
-        case 'listening':
-          return isMobile
-            ? 'Listening... (speak clearly)'
-            : 'Listening for your response...';
-        case 'speaking':
-          return 'Piko is speaking...';
-        case 'thinking':
-          return 'Piko is thinking...';
-        default:
-          return 'Voice conversation active';
+      if (conversation.status === 'connected') {
+        switch (currentMode) {
+          case 'listening':
+            return '#10B981'; // Green for listening
+          case 'speaking':
+            return '#F59E0B'; // Orange for speaking
+          case 'thinking':
+            return '#8B5CF6'; // Purple for thinking
+          default:
+            return '#3B82F6'; // Blue for connected
+        }
       }
-    }
 
-    if (!audioEnabled && userInteracted) {
-      return 'Enabling audio for mobile...';
-    }
-
-    if (connectionRetries > 0) {
-      return `Retrying connection... (${connectionRetries}/${maxRetries})`;
-    }
-
-    return isMobile
-      ? 'Tap to start voice conversation (mobile)'
-      : 'Tap to start voice conversation';
-  };
-
-  const getButtonColor = () => {
-    if (conversation.status === 'connecting') {
-      return '#6B7280'; // Gray for connecting
-    }
-
-    if (conversation.status === 'connected') {
-      switch (currentMode) {
-        case 'listening':
-          return '#10B981'; // Green for listening
-        case 'speaking':
-          return '#F59E0B'; // Orange for speaking
-        case 'thinking':
-          return '#8B5CF6'; // Purple for thinking
-        default:
-          return '#3B82F6'; // Blue for connected
+      if (connectionRetries > 0) {
+        return '#EF4444'; // Red for retry
       }
-    }
 
-    if (connectionRetries > 0) {
-      return '#EF4444'; // Red for retry
-    }
+      return '#3B82F6'; // Blue for disconnected
+    };
 
-    return '#3B82F6'; // Blue for disconnected
-  };
+    const isDisabled =
+      conversation.status === 'connecting' || connectionRetries >= maxRetries;
 
-  const isDisabled =
-    conversation.status === 'connecting' || connectionRetries >= maxRetries;
-
-  return isVisible ? (
-    <View style={styles.container}>
-      <PikoLogo
-        isSpeaking={currentMode === 'listening'}
-        isLoading={isInitialized}
-      />
-      <Pressable
-        style={[
-          styles.callButton,
-          {
-            backgroundColor: `${getButtonColor()}20`,
-            opacity: isDisabled ? 0.6 : 1,
-          },
-        ]}
-        onPress={handleButtonPress}
-        disabled={isDisabled}
-      >
-        <View
-          style={[styles.buttonInner, { backgroundColor: getButtonColor() }]}
+    return isVisible ? (
+      <View style={styles.container}>
+        <PikoLogo
+          isSpeaking={currentMode === 'listening'}
+          isLoading={isInitialized}
+        />
+        <Pressable
+          style={[
+            styles.callButton,
+            {
+              backgroundColor: `${getButtonColor()}20`,
+              opacity: isDisabled ? 0.6 : 1,
+            },
+          ]}
+          onPress={handleButtonPress}
+          disabled={isDisabled}
         >
-          {getButtonIcon()}
-        </View>
-      </Pressable>
+          <View
+            style={[styles.buttonInner, { backgroundColor: getButtonColor() }]}
+          >
+            {getButtonIcon()}
+          </View>
+        </Pressable>
 
-      <Text style={styles.statusText}>{getStatusText()}</Text>
+        <Text style={styles.statusText}>{getStatusText()}</Text>
 
-      {isMobile && (
-        <Text style={styles.mobileHint}>
-          {conversation.status === 'disconnected'
-            ? 'Optimized for mobile browsers!'
-            : conversation.status === 'connected' && currentMode === 'listening'
-            ? 'Speak clearly into your microphone'
-            : conversation.status === 'connecting'
-            ? 'Mobile connection in progress...'
-            : conversation.status === 'connected' && !conversationStarted
-            ? 'Ready for manual conversation control'
-            : ''}
-        </Text>
-      )}
-
-      {conversation.status === 'connected' && lastAgentMessage && (
-        <Text style={styles.lastMessage}>
-          Piko: "{lastAgentMessage.substring(0, 50)}..."
-        </Text>
-      )}
-
-      {conversation.status === 'connected' && lastUserMessage && (
-        <Text style={styles.lastUserMessage}>
-          You: "{lastUserMessage.substring(0, 50)}..."
-        </Text>
-      )}
-
-      {!hasPermission && conversation.status === 'disconnected' && (
-        <Text style={styles.permissionText}>
-          Microphone permission required
-        </Text>
-      )}
-
-      {!audioEnabled &&
-        conversation.status === 'disconnected' &&
-        userInteracted && (
-          <Text style={styles.audioText}>
-            Enabling audio for voice conversation...
+        {isMobile && (
+          <Text style={styles.mobileHint}>
+            {conversation.status === 'disconnected'
+              ? 'Optimized for mobile browsers!'
+              : conversation.status === 'connected' &&
+                currentMode === 'listening'
+              ? 'Speak clearly into your microphone'
+              : conversation.status === 'connecting'
+              ? 'Mobile connection in progress...'
+              : conversation.status === 'connected' && !conversationStarted
+              ? 'Ready for manual conversation control'
+              : ''}
           </Text>
         )}
 
-      {conversation.status === 'connected' &&
-        !conversationStarted &&
-        manualStartRequested && (
-          <Text style={styles.waitingText}>
-            Connected - conversation ready for manual control
+        {conversation.status === 'connected' && lastAgentMessage && (
+          <Text style={styles.lastMessage}>
+            Piko: "{lastAgentMessage.substring(0, 50)}..."
           </Text>
         )}
 
-      {connectionRetries > 0 && connectionRetries < maxRetries && (
-        <Text style={styles.retryText}>
-          Connection retry {connectionRetries}/{maxRetries}
-        </Text>
-      )}
+        {conversation.status === 'connected' && lastUserMessage && (
+          <Text style={styles.lastUserMessage}>
+            You: "{lastUserMessage.substring(0, 50)}..."
+          </Text>
+        )}
 
-      {connectionRetries >= maxRetries && (
-        <Text style={styles.errorText}>
-          Connection failed. Please check your internet and try again.
-        </Text>
-      )}
-    </View>
-  ) : null;
-});
+        {!hasPermission && conversation.status === 'disconnected' && (
+          <Text style={styles.permissionText}>
+            Microphone permission required
+          </Text>
+        )}
+
+        {!audioEnabled &&
+          conversation.status === 'disconnected' &&
+          userInteracted && (
+            <Text style={styles.audioText}>
+              Enabling audio for voice conversation...
+            </Text>
+          )}
+
+        {conversation.status === 'connected' &&
+          !conversationStarted &&
+          manualStartRequested && (
+            <Text style={styles.waitingText}>
+              Connected - conversation ready for manual control
+            </Text>
+          )}
+
+        {connectionRetries > 0 && connectionRetries < maxRetries && (
+          <Text style={styles.retryText}>
+            Connection retry {connectionRetries}/{maxRetries}
+          </Text>
+        )}
+
+        {connectionRetries >= maxRetries && (
+          <Text style={styles.errorText}>
+            Connection failed. Please check your internet and try again.
+          </Text>
+        )}
+      </View>
+    ) : null;
+  }
+);
 
 const styles = StyleSheet.create({
   container: {
@@ -756,3 +782,5 @@ const styles = StyleSheet.create({
     maxWidth: 200,
   },
 });
+
+export default ConversationalAI;

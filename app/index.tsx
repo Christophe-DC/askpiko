@@ -29,9 +29,7 @@ import {
   VolumeX,
   Loader as Loader2,
 } from 'lucide-react-native';
-import ConversationalAI, {
-  ConversationalAIHandle,
-} from '@/components/ConversationalAI';
+import ConversationalAI from '@/components/ConversationalAI';
 import * as Device from 'expo-device';
 
 // Types pour le diagnostic
