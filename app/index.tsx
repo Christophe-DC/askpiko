@@ -970,7 +970,7 @@ const [contextUpdate, setContextUpdate] = useState('');
           </View>
         </Card>
 
-        <PikoLogo
+        <PikoLogo style={styles.pikoVoice}
           isSpeaking={currentMode === 'listening'}
           isLoading={isInitialized}
         />
@@ -1130,9 +1130,20 @@ const styles = StyleSheet.create({
     marginLeft: designTokens.spacing.xs,
     fontWeight: '600',
   },
-  hiddenVoiceContainer: {
+  pikoVoice: {
+  
     width: 100,
     height: 100,
+  }
+  hiddenVoiceContainer: {    
+  position: 'absolute',
+    top: -1000,
+    left: -1000,
+    width: 100,
+    height: 100,
+    opacity: 0,
+    pointerEvents: 'none',
+
   },
   hiddenDomComponent: {
     width: 1,
