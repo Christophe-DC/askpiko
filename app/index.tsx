@@ -31,7 +31,7 @@ import {
 } from 'lucide-react-native';
 import ConversationalAI, { ConversationalAIHandle } from '@/components/ConversationalAI';
 import * as Device from 'expo-device';
-import PikoLogo from './PikoLogo';
+import PikoLogo from '@/components/PikoLogo';
 
 // Types pour le diagnostic
 type DiagnosticStep =
