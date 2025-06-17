@@ -98,6 +98,7 @@ type Props = {
   recordButtonPressed: () => string;
   recordSensorShake: () => string;
   recordCameraPhoto: () => string;
+  modeUpdated: (mode: string) => string;
   autoStart?: boolean;
   isVisible?: boolean;
   contextUpdate?: string;
@@ -121,6 +122,7 @@ const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
       recordButtonPressed,
       recordSensorShake,
       recordCameraPhoto,
+      modeUpdated,
       autoStart = false,
       isVisible = false,
       contextUpdate = null
