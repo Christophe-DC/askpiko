@@ -103,7 +103,7 @@ type Props = {
 };
 
 const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
-  function ConversationalAI(
+  (
     {
       dom,
       onUserMessage,
@@ -124,7 +124,7 @@ const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
       isVisible = false,
     },
     ref
-  ) {
+  ) => {
     const [isInitialized, setIsInitialized] = useState(false);
     const [currentMode, setCurrentMode] = useState<
       'listening' | 'speaking' | 'thinking' | 'idle'
