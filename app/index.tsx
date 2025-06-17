@@ -972,8 +972,8 @@ const [contextUpdate, setContextUpdate] = useState('');
         </Card>
 
         <PikoLogo style={styles.pikoVoice}
-          isSpeaking={currentMode === 'listening'}
-          isLoading={isInitialized}
+          isSpeaking={true}
+          isLoading={false}
         />
 
         {/* Voice Conversation Component */}
