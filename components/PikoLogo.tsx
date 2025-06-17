@@ -102,7 +102,7 @@ const PikoLogo: React.FC<Props> = ({ isSpeaking, isLoading }) => {
       <View style={styles.logo}>
         <Image
           source={require('../assets/images/pikoIcon.png')}
-          style={{ width: 64, height: 64 }}
+          style={{ width: 96, height: 96 }}
           resizeMode="contain"
         />
       </View>
@@ -133,10 +133,9 @@ const styles = StyleSheet.create({
     borderTopColor: 'transparent',
   },
   logo: {
-    width: 128,
-    height: 128,
+    width: 96,
+    height: 96,
     borderRadius: 48,
-    backgroundColor: '#2563eb',
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#2563eb',
