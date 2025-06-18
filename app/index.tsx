@@ -452,7 +452,7 @@ export default function HomeScreen() {
       // Notify AI agent if applicable
       const totalTrue = newGridTestCompleted.filter(Boolean).length;
 
-      setContextUpdate(`cell Tapped ${totalTrue}/${TOTAL_CELLS}`);
+      setContextUpdate(`cell tapped: ${totalTrue}/${TOTAL_CELLS}`);
       /* console.log('aiRef.current:', aiRef.current);
       aiRef.current?.sendContextUpdate(
         `cell Tapped ${totalTrue}/${TOTAL_CELLS}`
