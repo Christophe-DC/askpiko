@@ -330,7 +330,7 @@ const [contextUpdate, setContextUpdate] = useState('');
   };
 
   const setupGridTest = () => {
-    setGridTestCompleted(new Array(50).fill(false)); // 5x10 grid
+    setGridTestCompleted(Array(TOTAL_CELLS).fill(false)); // 5x10 grid
   };
 
   const setupButtonTest = () => {
