@@ -591,7 +591,7 @@ export default function HomeScreen() {
     return { current: currentIndex + 1, total: steps.length };
   };
 
-  console.log(isSpeaking);
+    console.log("Index isSpeaking:", isSpeaking);
 
   // Composants de rendu
   const renderWelcomeScreen = () => (
