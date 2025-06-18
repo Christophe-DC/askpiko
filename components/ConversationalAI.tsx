@@ -235,7 +235,7 @@ const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
       },
     });
 
-    console.log(isSpeaking);
+    console.log("Conversation AI isSpeaking:", isSpeaking);
 
     useImperativeHandle(ref, () => ({
       sendContextUpdate: (text: string) => {
