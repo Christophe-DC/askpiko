@@ -938,13 +938,16 @@ export default function HomeScreen() {
   };
 
   const SHOW_VOICE_DEBUG = true;
+  const SHOW_PROGRESS_DEBUG = true;
   const renderDiagnosticFlow = () => {
     const progress = getStepProgress();
+    const isGridTest = currentStep === 'display_grid';
 
     return (
       <View style={[styles.container, { backgroundColor: colors.surface }]}>
+        {/* Contenu principal - toujours visible */}
         <View style={[styles.content, { paddingTop: insets.top + 60 }]}>
-          {/* Logo comme dans le welcome screen */}
+          {/* Logo - même position que welcome screen */}
           <View style={styles.logoSection}>
             <PikoLogo
               style={styles.pikoVoice}
@@ -953,68 +956,82 @@ export default function HomeScreen() {
             />
           </View>
 
-          {/* Barre de progression */}
-          <Card style={styles.progressCard}>
-            <View style={styles.progressHeader}>
-              <Typography variant="h4" style={styles.progressTitle}>
-                Step {progress.current} of {progress.total}
-              </Typography>
-              <Button
-                title="Stop"
-                variant="ghost"
-                onPress={handleStopDiagnostic}
-                style={styles.stopButton}
-              />
-            </View>
-            <View style={styles.progressBarContainer}>
-              <View
-                style={[styles.progressBar, { backgroundColor: colors.border }]}
-              >
-                <View
-                  style={[
-                    styles.progressFill,
-                    {
-                      width: `${(progress.current / progress.total) * 100}%`,
-                      backgroundColor: colors.primary,
-                    },
-                  ]}
+          {/* Barre de progression (debug) */}
+          {SHOW_PROGRESS_DEBUG && (
+            <Card style={styles.progressCard}>
+              <View style={styles.progressHeader}>
+                <Typography variant="h4" style={styles.progressTitle}>
+                  Step {progress.current} of {progress.total}
+                </Typography>
+                <Button
+                  title="Stop"
+                  variant="ghost"
+                  onPress={handleStopDiagnostic}
+                  style={styles.stopButton}
                 />
               </View>
-            </View>
-          </Card>
+              <View style={styles.progressBarContainer}>
+                <View
+                  style={[
+                    styles.progressBar,
+                    { backgroundColor: colors.border },
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.progressFill,
+                      {
+                        width: `${(progress.current / progress.total) * 100}%`,
+                        backgroundColor: colors.primary,
+                      },
+                    ]}
+                  />
+                </View>
+              </View>
+            </Card>
+          )}
 
-          {/* Mini état vocal (débug uniquement) */}
+          {/* État vocal (debug) */}
           {SHOW_VOICE_DEBUG &&
             voiceModeEnabled &&
             voiceConversationStarted &&
             renderVoiceStatus()}
 
-          {/* Zone principale */}
-          <View style={styles.stepContentFixed}>
+          {/* Zone de contenu pour les étapes (pas pour grid) */}
+          {!isGridTest && (
+            <View style={styles.stepContentContainer}>
+              {renderCurrentStepContent()}
+            </View>
+          )}
+        </View>
+
+        {/* Overlay pour le test de grille (par-dessus tout) */}
+        {isGridTest && (
+          <View style={styles.fullScreenOverlay}>
             {renderCurrentStepContent()}
           </View>
+        )}
 
-          {/* Composant IA caché */}
-          <View style={styles.hiddenVoiceContainer}>
-            <ConversationalAI
-              ref={aiRef}
-              dom={{ style: styles.hiddenDomComponent }}
-              onUserMessage={handleUserMessage}
-              onAgentMessage={handleAgentMessage}
-              onModeChange={handleModeChange}
-              autoStart={voiceModeEnabled && voiceConversationStarted}
-              isVisible={voiceModeEnabled && voiceConversationStarted}
-              checkMicrophonePermission={diagnosticTools.test_microphone}
-              getDeviceInfos={diagnosticTools.get_device_info}
-              updateDiagnosticStep={diagnosticTools.updateDiagnosticStep}
-              updatePhraseToRead={diagnosticTools.updatePhraseToRead}
-              updateColorToShow={diagnosticTools.updateColorToShow}
-              recordButtonPressed={diagnosticTools.recordButtonPressed}
-              recordSensorShake={diagnosticTools.recordSensorShake}
-              recordCameraPhoto={diagnosticTools.recordCameraPhoto}
-              contextUpdate={contextUpdate}
-            />
-          </View>
+        {/* Composant IA caché */}
+        <View style={styles.hiddenVoiceContainer}>
+          <ConversationalAI
+            ref={aiRef}
+            dom={{ style: styles.hiddenDomComponent }}
+            onUserMessage={handleUserMessage}
+            onAgentMessage={handleAgentMessage}
+            onModeChange={handleModeChange}
+            autoStart={voiceModeEnabled && voiceConversationStarted}
+            isVisible={voiceModeEnabled && voiceConversationStarted}
+            checkMicrophonePermission={diagnosticTools.test_microphone}
+            getDeviceInfos={diagnosticTools.get_device_info}
+            updateDiagnosticStep={diagnosticTools.updateDiagnosticStep}
+            updatePhraseToRead={diagnosticTools.updatePhraseToRead}
+            updateColorToShow={diagnosticTools.updateColorToShow}
+            recordButtonPressed={diagnosticTools.recordButtonPressed}
+            recordSensorShake={diagnosticTools.recordSensorShake}
+            recordCameraPhoto={diagnosticTools.recordCameraPhoto}
+            contextUpdate={contextUpdate}
+          />
         </View>
       </View>
     );
@@ -1035,13 +1052,13 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     paddingHorizontal: designTokens.spacing.xl,
   },
   logoSection: {
     alignItems: 'center',
-    marginBottom: designTokens.spacing['3xl'],
+    marginBottom: designTokens.spacing.xl,
   },
   logoContainer: {
     width: 120,
@@ -1074,8 +1091,8 @@ const styles = StyleSheet.create({
     ...designTokens.shadows.lg,
   },
   progressCard: {
-    margin: designTokens.spacing.md,
-    marginBottom: designTokens.spacing.lg,
+    width: '100%',
+    marginBottom: designTokens.spacing.md,
   },
   progressHeader: {
     flexDirection: 'row',
@@ -1166,47 +1183,44 @@ const styles = StyleSheet.create({
     width: 1,
     height: 1,
   },
-  stepScrollView: {
-    flex: 1,
-  },
-  stepContainer: {
-    padding: designTokens.spacing.lg,
-  },
   minimalVoiceCard: {
-    marginBottom: designTokens.spacing.lg,
-    padding: designTokens.spacing.md,
+    width: '100%',
+    marginBottom: designTokens.spacing.md,
+    padding: designTokens.spacing.sm,
   },
   voiceStatusRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: designTokens.spacing.sm,
+    marginBottom: designTokens.spacing.xs,
   },
   voiceStatusIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: designTokens.spacing.sm,
   },
   voiceStatusLabel: {
     fontWeight: '600',
-    fontSize: 14,
+    fontSize: 12,
   },
   messageRow: {
-    marginBottom: designTokens.spacing.sm,
+    marginBottom: designTokens.spacing.xs,
   },
   messageLabel: {
     fontWeight: '600',
     marginBottom: designTokens.spacing.xs,
+    fontSize: 10,
   },
   messageText: {
-    lineHeight: 20,
-    fontSize: 14,
+    lineHeight: 16,
+    fontSize: 12,
   },
   stepCard: {
     alignItems: 'center',
     padding: designTokens.spacing.xl,
+    width: '100%',
   },
   stepTitle: {
     marginBottom: designTokens.spacing.md,
@@ -1227,23 +1241,57 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: designTokens.borderRadius.lg,
   },
-  gridTestContainer: {
+  // Nouveau style pour le conteneur de contenu des étapes
+  stepContentContainer: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  // Nouveau style pour l'overlay plein écran
+  fullScreenOverlay: {
     position: 'absolute',
     top: 0,
     left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1000,
   },
   overlay: {
     position: 'absolute',
     top: 0,
     left: 0,
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
-    backgroundColor: 'transparent',
-    zIndex: 999,
+    right: 0,
+    bottom: 0,
+    zIndex: 1001,
+  },
+  gridTestContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: 1001,
+    paddingTop: 60,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  gridTestTitle: {
+    color: 'white',
+    marginBottom: designTokens.spacing.md,
+    fontWeight: '700',
+  },
+  gridTestDescription: {
+    color: 'white',
+    marginBottom: designTokens.spacing.lg,
+    textAlign: 'center',
+  },
   gridContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
     flexDirection: 'row',
@@ -1253,13 +1301,7 @@ const styles = StyleSheet.create({
     width: SCREEN_WIDTH / TOTAL_COLUMNS,
     height: SCREEN_HEIGHT / TOTAL_ROWS,
     borderWidth: 1,
-    borderColor: 'transparent',
+    borderColor: 'rgba(255, 255, 255, 1)',
     backgroundColor: 'black',
-  },
-  stepContentFixed: {
-    flex: 1,
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

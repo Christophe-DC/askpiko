@@ -4,7 +4,7 @@ import { View, Image, StyleSheet, Animated, Easing } from 'react-native';
 type Props = {
   isSpeaking: boolean;
   isLoading: boolean;
-  size?: number; 
+  size?: number;
 };
 
 const PikoLogo: React.FC<Props> = ({ isSpeaking, isLoading, size = 192 }) => {
@@ -99,22 +99,6 @@ const PikoLogo: React.FC<Props> = ({ isSpeaking, isLoading, size = 192 }) => {
   return (
     <View style={[styles.container, { width: size, height: size }]}>
       {isSpeaking && pulses.map((p, i) => renderPulse(p, i))}
-
-      {isLoading && (
-        <Animated.View
-          style={{
-            position: 'absolute',
-            width: size + 12,
-            height: size + 12,
-            borderRadius: (size + 12) / 2,
-            borderWidth: 4,
-            borderColor: 'rgba(59,130,246,0.4)',
-            borderTopColor: 'transparent',
-            transform: [{ rotate: spinInterpolate }],
-            zIndex: 0,
-          }}
-        />
-      )}
 
       <Image
         source={require('../assets/images/pikoIcon.png')}
