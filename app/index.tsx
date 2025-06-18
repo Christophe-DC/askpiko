@@ -34,6 +34,7 @@ import ConversationalAI, {
 } from '@/components/ConversationalAI';
 import * as Device from 'expo-device';
 import PikoLogo from '@/components/PikoLogo';
+import { useConversation } from '@elevenlabs/react';
 
 // Types pour le diagnostic
 type DiagnosticStep =
@@ -143,6 +144,8 @@ export default function HomeScreen() {
 
   const { requestMicrophonePermission, checkMicrophonePermission } =
     usePermissions();
+
+  const { isSpeaking } = useConversation();
 
   const {
     state: voiceState,
@@ -941,7 +944,7 @@ export default function HomeScreen() {
           <View style={styles.logoSection}>
             <PikoLogo
               style={styles.pikoVoice}
-              isSpeaking={voiceMode === 'speaking'}
+              isSpeaking={isSpeaking}
               isLoading={voiceMode === 'idle'}
             />
 
