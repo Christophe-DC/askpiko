@@ -318,7 +318,9 @@ export default function HomeScreen() {
     setLastAgentMessage(message);
   }
 
-  function handleModeChange(mode: 'listening' | 'speaking' | 'thinking') {
+  function handleModeChange(
+    mode: 'listening' | 'speaking' | 'thinking' | 'idle'
+  ) {
     console.log('🔄 Voice mode changed to:', mode);
     setVoiceMode(mode);
   }
@@ -452,7 +454,7 @@ export default function HomeScreen() {
       // Notify AI agent if applicable
       const totalTrue = newGridTestCompleted.filter(Boolean).length;
 
-      setContextUpdate(`cell tapped: ${totalTrue}/${TOTAL_CELLS}`);
+      setContextUpdate(`cell Tapped ${totalTrue}/${TOTAL_CELLS}`);
       /* console.log('aiRef.current:', aiRef.current);
       aiRef.current?.sendContextUpdate(
         `cell Tapped ${totalTrue}/${TOTAL_CELLS}`
@@ -593,7 +595,7 @@ export default function HomeScreen() {
         <View style={styles.logoSection}>
           <PikoLogo
             style={styles.pikoVoice}
-            isSpeaking={true}
+            isSpeaking={false}
             isLoading={false}
           />
 
@@ -1001,12 +1003,12 @@ export default function HomeScreen() {
             </View>
 
             {/* Current Step */}
-            <View style={styles.stepScrollView}>
+            <ScrollView style={styles.stepScrollView}>
               {voiceModeEnabled &&
                 voiceConversationStarted &&
                 renderVoiceStatus()}
               {renderCurrentStepContent()}
-            </View>
+            </ScrollView>
           </View>
         </View>
       </View>

@@ -86,7 +86,7 @@ type Props = {
   dom: DOMProps;
   onUserMessage?: (message: string) => void;
   onAgentMessage?: (message: string) => void;
-  onModeChange?: (mode: 'listening' | 'speaking' | 'thinking') => void;
+  onModeChange?: (mode: 'listening' | 'speaking' | 'thinking' | 'idle') => void;
   onConnect?: () => void;
   onDisconnect?: () => void;
   onError?: (error: Error) => void;
