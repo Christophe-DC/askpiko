@@ -1001,12 +1001,12 @@ export default function HomeScreen() {
             </View>
 
             {/* Current Step */}
-            <ScrollView style={styles.stepScrollView}>
+            <View style={styles.stepScrollView}>
               {voiceModeEnabled &&
                 voiceConversationStarted &&
                 renderVoiceStatus()}
               {renderCurrentStepContent()}
-            </ScrollView>
+            </View>
           </View>
         </View>
       </View>
