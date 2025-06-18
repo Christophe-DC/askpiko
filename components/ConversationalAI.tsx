@@ -224,9 +224,6 @@ const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
         setCurrentMode(mode.mode);
         onModeChange?.(mode.mode);
       },
-      onAudio: (audio) => {
-        console.log('🔄 ElevenLabs onAudio:', audio);
-      },
       onError: (error) => {
         console.error('❌ ElevenLabs conversation error:', error);
         setConnectionRetries((prev) => prev + 1);
