@@ -102,7 +102,7 @@ export default function HomeScreen() {
   const [currentStep, setCurrentStep] =
     useState<DiagnosticStep>('display_grid');
   const [isRunning, setIsRunning] = useState(false);
-  const [showDiagnosticFlow, setShowDiagnosticFlow] = useState(false);
+  const [showDiagnosticFlow, setShowDiagnosticFlow] = useState(true);
   const [voiceModeEnabled, setVoiceModeEnabled] = useState(false);
   const [voiceConversationStarted, setVoiceConversationStarted] =
     useState(false);
