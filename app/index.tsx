@@ -11,7 +11,6 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/useTheme';
 import { usePermissions } from '../hooks/usePermissions';
-import { useVoiceConversation } from '../hooks/useVoiceConversation';
 import Typography from '@/components/ui/Typography';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -146,17 +145,6 @@ export default function HomeScreen() {
     usePermissions();
 
   const { isSpeaking } = useConversation();
-
-  const {
-    state: voiceState,
-    startConversation,
-    endConversation,
-    speakText,
-  } = useVoiceConversation(
-    handleUserMessage,
-    handleAgentMessage,
-    handleModeChange
-  );
 
   // Outils de diagnostic
   const diagnosticTools = {
@@ -381,14 +369,7 @@ export default function HomeScreen() {
     setCurrentStep('introduction');
 
     try {
-      console.log('🎤 Starting voice conversation...');
-      await startConversation();
       setVoiceConversationStarted(true);
-
-      // L'agent va gérer l'introduction et les permissions
-      await speakText(
-        "Hello! Thanks for choosing AskPiko Mobile Verification. I'm Piko, your AI Agent. AskPiko removes the guesswork from second-hand phone sales."
-      );
     } catch (error) {
       console.error('❌ Failed to start voice conversation:', error);
       setVoiceModeEnabled(false);
@@ -400,7 +381,6 @@ export default function HomeScreen() {
   // Arrêt du diagnostic
   const handleStopDiagnostic = async () => {
     if (voiceModeEnabled && voiceConversationStarted) {
-      await endConversation();
       setVoiceConversationStarted(false);
     }
 
