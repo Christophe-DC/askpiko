@@ -125,7 +125,7 @@ const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
       modeUpdated,
       autoStart = false,
       isVisible = false,
-      contextUpdate = null
+      contextUpdate = null,
     },
     ref
   ) => {
@@ -231,20 +231,20 @@ const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
       },
     });
 
-     useImperativeHandle(ref, () => ({
-    sendContextUpdate: (text: string) => {
-      console.log('Message envoyé à l’IA:', text);
+    useImperativeHandle(ref, () => ({
+      sendContextUpdate: (text: string) => {
+        console.log('Message envoyé à l’IA:', text);
         conversation.sendContextualUpdate(text);
-    },
-  }));
+      },
+    }));
 
     useEffect(() => {
-    if (contextUpdate) {
-      conversation?.sendContextualUpdate(contextUpdate);
-    }
-  }, [contextUpdate]);
+      console.log('useEffect Message envoyé à l’IA:', contextUpdate);
+      if (contextUpdate) {
+        conversation?.sendContextualUpdate(contextUpdate);
+      }
+    }, [contextUpdate]);
 
-    
     const startConversation = useCallback(async () => {
       try {
         console.log('🚀 Starting ElevenLabs conversation manually...');
@@ -617,7 +617,6 @@ const ConversationalAI = forwardRef<ConversationalAIHandle, Props>(
           isSpeaking={currentMode === 'listening'}
           isLoading={isInitialized}
         />
-      
       </View>
     ) : null;
   }

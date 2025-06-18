@@ -29,7 +29,9 @@ import {
   VolumeX,
   Loader as Loader2,
 } from 'lucide-react-native';
-import ConversationalAI, { ConversationalAIHandle } from '@/components/ConversationalAI';
+import ConversationalAI, {
+  ConversationalAIHandle,
+} from '@/components/ConversationalAI';
 import * as Device from 'expo-device';
 import PikoLogo from '@/components/PikoLogo';
 
@@ -130,8 +132,7 @@ export default function HomeScreen() {
   const [phraseToRead, setPhraseToRead] = useState('');
   const [sensorTestCompleted, setSensorTestCompleted] = useState(false);
   const [cameraTestCompleted, setCameraTestCompleted] = useState(false);
-const [contextUpdate, setContextUpdate] = useState('');
-  
+  const [contextUpdate, setContextUpdate] = useState('');
 
   // Résultats des tests
   const [diagnosticResults, setDiagnosticResults] = useState<
@@ -442,6 +443,7 @@ const [contextUpdate, setContextUpdate] = useState('');
 
   // Gestionnaires d'événements pour les tests
   const handleGridCellClick = (index: number) => {
+    console.log('handleGridCellClick:', index);
     if (!gridTestCompleted[index]) {
       const newGridTestCompleted = [...gridTestCompleted];
       newGridTestCompleted[index] = true;
@@ -449,9 +451,9 @@ const [contextUpdate, setContextUpdate] = useState('');
 
       // Notify AI agent if applicable
       const totalTrue = newGridTestCompleted.filter(Boolean).length;
-      
-  setContextUpdate(`cell Tapped ${totalTrue}/${TOTAL_CELLS}`);
-     /* console.log('aiRef.current:', aiRef.current);
+
+      setContextUpdate(`cell Tapped ${totalTrue}/${TOTAL_CELLS}`);
+      /* console.log('aiRef.current:', aiRef.current);
       aiRef.current?.sendContextUpdate(
         `cell Tapped ${totalTrue}/${TOTAL_CELLS}`
       );*/
@@ -589,10 +591,11 @@ const [contextUpdate, setContextUpdate] = useState('');
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <View style={[styles.content, { paddingTop: insets.top + 60 }]}>
         <View style={styles.logoSection}>
-           <PikoLogo style={styles.pikoVoice}
-          isSpeaking={true}
-          isLoading={false}
-        />
+          <PikoLogo
+            style={styles.pikoVoice}
+            isSpeaking={true}
+            isLoading={false}
+          />
 
           <Typography
             variant="h2"
@@ -932,75 +935,81 @@ const [contextUpdate, setContextUpdate] = useState('');
 
     return (
       <View style={[styles.container, { backgroundColor: colors.surface }]}>
-      <View style={[styles.content, { paddingTop: insets.top + 60 }]}>
-        <View style={styles.logoSection}>
-          <PikoLogo style={styles.pikoVoice}
-          isSpeaking={voiceMode === 'speaking'}
-          isLoading={voiceMode === 'idle'}
-        />
-
-          {/* Progress Header */}
-        <Card style={styles.progressCard}>
-          <View style={styles.progressHeader}>
-            <Typography variant="h4" style={styles.progressTitle}>
-              Step {progress.current} of {progress.total}
-            </Typography>
-            <Button
-              title="Stop"
-              variant="ghost"
-              onPress={handleStopDiagnostic}
-              style={styles.stopButton}
+        <View style={[styles.content, { paddingTop: insets.top + 60 }]}>
+          <View style={styles.logoSection}>
+            <PikoLogo
+              style={styles.pikoVoice}
+              isSpeaking={voiceMode === 'speaking'}
+              isLoading={voiceMode === 'idle'}
             />
-          </View>
 
-          <View style={styles.progressBarContainer}>
-            <View
-              style={[styles.progressBar, { backgroundColor: colors.border }]}
-            >
-              <View
-                style={[
-                  styles.progressFill,
-                  {
-                    width: `${(progress.current / progress.total) * 100}%`,
-                    backgroundColor: colors.primary,
-                  },
-                ]}
+            {/* Progress Header */}
+            <Card style={styles.progressCard}>
+              <View style={styles.progressHeader}>
+                <Typography variant="h4" style={styles.progressTitle}>
+                  Step {progress.current} of {progress.total}
+                </Typography>
+                <Button
+                  title="Stop"
+                  variant="ghost"
+                  onPress={handleStopDiagnostic}
+                  style={styles.stopButton}
+                />
+              </View>
+
+              <View style={styles.progressBarContainer}>
+                <View
+                  style={[
+                    styles.progressBar,
+                    { backgroundColor: colors.border },
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.progressFill,
+                      {
+                        width: `${(progress.current / progress.total) * 100}%`,
+                        backgroundColor: colors.primary,
+                      },
+                    ]}
+                  />
+                </View>
+              </View>
+            </Card>
+
+            {/* Voice Conversation Component */}
+
+            <View style={styles.hiddenVoiceContainer}>
+              <ConversationalAI
+                ref={aiRef}
+                dom={{ style: styles.hiddenDomComponent }}
+                onUserMessage={handleUserMessage}
+                onAgentMessage={handleAgentMessage}
+                onModeChange={handleModeChange}
+                autoStart={voiceModeEnabled && voiceConversationStarted}
+                isVisible={voiceModeEnabled && voiceConversationStarted}
+                checkMicrophonePermission={diagnosticTools.test_microphone}
+                getDeviceInfos={diagnosticTools.get_device_info}
+                updateDiagnosticStep={diagnosticTools.updateDiagnosticStep}
+                updatePhraseToRead={diagnosticTools.updatePhraseToRead}
+                updateColorToShow={diagnosticTools.updateColorToShow}
+                recordButtonPressed={diagnosticTools.recordButtonPressed}
+                recordSensorShake={diagnosticTools.recordSensorShake}
+                recordCameraPhoto={diagnosticTools.recordCameraPhoto}
+                contextUpdate={contextUpdate}
               />
             </View>
+
+            {/* Current Step */}
+            <ScrollView style={styles.stepScrollView}>
+              {voiceModeEnabled &&
+                voiceConversationStarted &&
+                renderVoiceStatus()}
+              {renderCurrentStepContent()}
+            </ScrollView>
           </View>
-        </Card>
-
-           {/* Voice Conversation Component */}
-
-        <View style={styles.hiddenVoiceContainer}>
-          <ConversationalAI
-            ref={aiRef}
-            dom={{ style: styles.hiddenDomComponent }}
-            onUserMessage={handleUserMessage}
-            onAgentMessage={handleAgentMessage}
-            onModeChange={handleModeChange}
-            autoStart={voiceModeEnabled && voiceConversationStarted}
-            isVisible={voiceModeEnabled && voiceConversationStarted}
-            checkMicrophonePermission={diagnosticTools.test_microphone}
-            getDeviceInfos={diagnosticTools.get_device_info}
-            updateDiagnosticStep={diagnosticTools.updateDiagnosticStep}
-            updatePhraseToRead={diagnosticTools.updatePhraseToRead}
-            updateColorToShow={diagnosticTools.updateColorToShow}
-            recordButtonPressed={diagnosticTools.recordButtonPressed}
-            recordSensorShake={diagnosticTools.recordSensorShake}
-            recordCameraPhoto={diagnosticTools.recordCameraPhoto}
-            contextUpdate={contextUpdate}
-          />
         </View>
-
-        {/* Current Step */}
-        <ScrollView style={styles.stepScrollView}>
-          {voiceModeEnabled && voiceConversationStarted && renderVoiceStatus()}
-          {renderCurrentStepContent()}
-        </ScrollView>
       </View>
-    </View>
-    </View>
     );
   };
 
@@ -1135,9 +1144,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: designTokens.spacing.xl,
-    ...designTokens.shadows.lg,    
+    ...designTokens.shadows.lg,
   },
-  hiddenVoiceContainer: {    
+  hiddenVoiceContainer: {
     position: 'absolute',
     top: -1000,
     left: -1000,
@@ -1145,7 +1154,6 @@ const styles = StyleSheet.create({
     height: 100,
     opacity: 0,
     pointerEvents: 'none',
-
   },
   hiddenDomComponent: {
     width: 1,
