@@ -591,6 +591,8 @@ export default function HomeScreen() {
     return { current: currentIndex + 1, total: steps.length };
   };
 
+  console.log(isSpeaking);
+
   // Composants de rendu
   const renderWelcomeScreen = () => (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
