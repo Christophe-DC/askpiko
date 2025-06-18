@@ -591,7 +591,7 @@ export default function HomeScreen() {
     return { current: currentIndex + 1, total: steps.length };
   };
 
-    console.log("Index isSpeaking:", isSpeaking);
+  console.log('Index isSpeaking:', isSpeaking);
 
   // Composants de rendu
   const renderWelcomeScreen = () => (
@@ -937,83 +937,83 @@ export default function HomeScreen() {
     }
   };
 
+  const SHOW_VOICE_DEBUG = true;
   const renderDiagnosticFlow = () => {
     const progress = getStepProgress();
 
     return (
       <View style={[styles.container, { backgroundColor: colors.surface }]}>
         <View style={[styles.content, { paddingTop: insets.top + 60 }]}>
+          {/* Logo comme dans le welcome screen */}
           <View style={styles.logoSection}>
             <PikoLogo
               style={styles.pikoVoice}
               isSpeaking={isSpeaking}
               isLoading={voiceMode === 'idle'}
             />
+          </View>
 
-            {/* Progress Header */}
-            <Card style={styles.progressCard}>
-              <View style={styles.progressHeader}>
-                <Typography variant="h4" style={styles.progressTitle}>
-                  Step {progress.current} of {progress.total}
-                </Typography>
-                <Button
-                  title="Stop"
-                  variant="ghost"
-                  onPress={handleStopDiagnostic}
-                  style={styles.stopButton}
-                />
-              </View>
-
-              <View style={styles.progressBarContainer}>
-                <View
-                  style={[
-                    styles.progressBar,
-                    { backgroundColor: colors.border },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.progressFill,
-                      {
-                        width: `${(progress.current / progress.total) * 100}%`,
-                        backgroundColor: colors.primary,
-                      },
-                    ]}
-                  />
-                </View>
-              </View>
-            </Card>
-
-            {/* Voice Conversation Component */}
-
-            <View style={styles.hiddenVoiceContainer}>
-              <ConversationalAI
-                ref={aiRef}
-                dom={{ style: styles.hiddenDomComponent }}
-                onUserMessage={handleUserMessage}
-                onAgentMessage={handleAgentMessage}
-                onModeChange={handleModeChange}
-                autoStart={voiceModeEnabled && voiceConversationStarted}
-                isVisible={voiceModeEnabled && voiceConversationStarted}
-                checkMicrophonePermission={diagnosticTools.test_microphone}
-                getDeviceInfos={diagnosticTools.get_device_info}
-                updateDiagnosticStep={diagnosticTools.updateDiagnosticStep}
-                updatePhraseToRead={diagnosticTools.updatePhraseToRead}
-                updateColorToShow={diagnosticTools.updateColorToShow}
-                recordButtonPressed={diagnosticTools.recordButtonPressed}
-                recordSensorShake={diagnosticTools.recordSensorShake}
-                recordCameraPhoto={diagnosticTools.recordCameraPhoto}
-                contextUpdate={contextUpdate}
+          {/* Barre de progression */}
+          <Card style={styles.progressCard}>
+            <View style={styles.progressHeader}>
+              <Typography variant="h4" style={styles.progressTitle}>
+                Step {progress.current} of {progress.total}
+              </Typography>
+              <Button
+                title="Stop"
+                variant="ghost"
+                onPress={handleStopDiagnostic}
+                style={styles.stopButton}
               />
             </View>
+            <View style={styles.progressBarContainer}>
+              <View
+                style={[styles.progressBar, { backgroundColor: colors.border }]}
+              >
+                <View
+                  style={[
+                    styles.progressFill,
+                    {
+                      width: `${(progress.current / progress.total) * 100}%`,
+                      backgroundColor: colors.primary,
+                    },
+                  ]}
+                />
+              </View>
+            </View>
+          </Card>
 
-            {/* Current Step */}
-            <ScrollView style={styles.stepScrollView}>
-              {voiceModeEnabled &&
-                voiceConversationStarted &&
-                renderVoiceStatus()}
-              {renderCurrentStepContent()}
-            </ScrollView>
+          {/* Mini état vocal (débug uniquement) */}
+          {SHOW_VOICE_DEBUG &&
+            voiceModeEnabled &&
+            voiceConversationStarted &&
+            renderVoiceStatus()}
+
+          {/* Zone principale */}
+          <View style={styles.stepContentFixed}>
+            {renderCurrentStepContent()}
+          </View>
+
+          {/* Composant IA caché */}
+          <View style={styles.hiddenVoiceContainer}>
+            <ConversationalAI
+              ref={aiRef}
+              dom={{ style: styles.hiddenDomComponent }}
+              onUserMessage={handleUserMessage}
+              onAgentMessage={handleAgentMessage}
+              onModeChange={handleModeChange}
+              autoStart={voiceModeEnabled && voiceConversationStarted}
+              isVisible={voiceModeEnabled && voiceConversationStarted}
+              checkMicrophonePermission={diagnosticTools.test_microphone}
+              getDeviceInfos={diagnosticTools.get_device_info}
+              updateDiagnosticStep={diagnosticTools.updateDiagnosticStep}
+              updatePhraseToRead={diagnosticTools.updatePhraseToRead}
+              updateColorToShow={diagnosticTools.updateColorToShow}
+              recordButtonPressed={diagnosticTools.recordButtonPressed}
+              recordSensorShake={diagnosticTools.recordSensorShake}
+              recordCameraPhoto={diagnosticTools.recordCameraPhoto}
+              contextUpdate={contextUpdate}
+            />
           </View>
         </View>
       </View>
@@ -1255,5 +1255,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'transparent',
     backgroundColor: 'black',
+  },
+  stepContentFixed: {
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
