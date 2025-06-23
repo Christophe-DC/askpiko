@@ -32,7 +32,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
 }
 expoAutolinking.useExpoModules()
 
-rootProject.name = 'bolt-expo-nativewind'
+rootProject.name = 'askpiko'
 
 expoAutolinking.useExpoVersionCatalog()
 

@@ -1,15 +1,16 @@
 package com.askpiko.app
-import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build
 import android.os.Bundle
-
+import android.view.KeyEvent
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
-
+import com.github.kevinejohn.keyevent.KeyEventModule
 import expo.modules.ReactActivityDelegateWrapper
+import expo.modules.splashscreen.SplashScreenManager
+
 
 class MainActivity : ReactActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,4 +63,9 @@ class MainActivity : ReactActivity() {
       // because it's doing more than [Activity.moveTaskToBack] in fact.
       super.invokeDefaultOnBackPressed()
   }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        KeyEventModule.getInstance().onKeyDownEvent(keyCode, event)
+        return super.onKeyDown(keyCode, event)
+    }
 }

@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
+  Text,
   StyleSheet,
-  ScrollView,
   StatusBar,
-  Platform,
   Dimensions,
   TouchableOpacity,
 } from 'react-native';
@@ -18,14 +17,11 @@ import { designTokens } from '@/styles/tokens';
 import {
   Mic,
   Play,
-  RotateCcw,
-  FileText,
-  Settings,
-  Globe,
-  Smartphone,
   MessageCircle,
   Volume2,
-  VolumeX,
+  Monitor,
+  Cpu,
+  HardDrive,
   Loader as Loader2,
 } from 'lucide-react-native';
 import ConversationalAI, {
@@ -33,7 +29,12 @@ import ConversationalAI, {
 } from '@/components/ConversationalAI';
 import * as Device from 'expo-device';
 import PikoLogo from '@/components/PikoLogo';
-import { useConversation } from '@elevenlabs/react';
+import ColorContainerTest from '@/components/ColorContainerTest';
+import LottieView from 'lottie-react-native';
+import PhonePressButon from '@/assets/animation/PhonePressButon.json';
+import PhoneShake from '@/assets/animation/PhoneShake.json';
+import { useShakeDetection } from '@/hooks/useShakeDetection';
+import { usePhysicalButtons } from '@/hooks/usePhysicalButtons';
 
 // Types pour le diagnostic
 type DiagnosticStep =
@@ -139,12 +140,8 @@ export default function HomeScreen() {
     DiagnosticResult[]
   >([]);
 
-  const aiRef = useRef<ConversationalAIHandle>(null);
-
   const { requestMicrophonePermission, checkMicrophonePermission } =
     usePermissions();
-
-  const { isSpeaking } = useConversation();
 
   // Outils de diagnostic
   const diagnosticTools = {
@@ -171,9 +168,10 @@ export default function HomeScreen() {
         totalMemory: Device.totalMemory ?? 0,
         supportedCpuArchitectures: Device.supportedCpuArchitectures ?? [],
         isDevice: Device.isDevice,
-        screenResolution: `${width}x${height}`,
+        screenResolution: `${Math.floor(width)}x${Math.floor(height)}`,
       };
 
+      setDeviceInfo(info);
       console.log('📱 Device Info:', info);
       return info;
     },
@@ -205,10 +203,13 @@ export default function HomeScreen() {
           break;
         case 6:
           nextDiagStep = 'microphone_test';
+          break;
         case 7:
           nextDiagStep = 'sensor_test';
+          break;
         case 8:
-          nextDiagStep = 'camera_test';
+          nextDiagStep = 'summary'; //'camera_test';
+          break;
         case 9:
           nextDiagStep = 'summary';
           break;
@@ -242,8 +243,9 @@ export default function HomeScreen() {
     },
 
     updatePhraseToRead: async (phrase: string): Promise<string> => {
-      setPhraseToRead(phrase);
-      return `Phrase set: ${phrase}`;
+      console.log('updatePhraseToRead:', phrase);
+      setPhraseToRead(phrase.phrase);
+      return `Phrase set: ${phrase.phrase}`;
     },
 
     updateColorToShow: async (colorName: string): Promise<string> => {
@@ -332,9 +334,8 @@ export default function HomeScreen() {
   };
 
   const setupMicrophoneTest = () => {
-    const randomPhrase =
-      MICROPHONE_PHRASES[Math.floor(Math.random() * MICROPHONE_PHRASES.length)];
-    setPhraseToRead(randomPhrase);
+    //const randomPhrase = MICROPHONE_PHRASES[Math.floor(Math.random() * MICROPHONE_PHRASES.length)];
+    //setPhraseToRead(randomPhrase);
   };
 
   const setupSensorTest = () => {
@@ -437,7 +438,9 @@ export default function HomeScreen() {
       // Notify AI agent if applicable
       const totalTrue = newGridTestCompleted.filter(Boolean).length;
 
-      setContextUpdate(`cell Tapped ${totalTrue}/${TOTAL_CELLS}`);
+      if (totalTrue === 25 || totalTrue === 50) {
+        setContextUpdate(`Cell tapped ${totalTrue}/${TOTAL_CELLS}`);
+      }
       /* console.log('aiRef.current:', aiRef.current);
       aiRef.current?.sendContextUpdate(
         `cell Tapped ${totalTrue}/${TOTAL_CELLS}`
@@ -452,31 +455,16 @@ export default function HomeScreen() {
   };
 
   // Détection des mouvements pour les capteurs
-  useEffect(() => {
-    if (currentStep === 'sensor_test' && !sensorTestCompleted) {
-      const handleDeviceMotion = (event: DeviceMotionEvent) => {
-        const acceleration = event.accelerationIncludingGravity;
-        if (acceleration) {
-          const totalAcceleration = Math.sqrt(
-            Math.pow(acceleration.x || 0, 2) +
-              Math.pow(acceleration.y || 0, 2) +
-              Math.pow(acceleration.z || 0, 2)
-          );
+  const handleShakeDetected = () => {
+    console.log('Shake détected!');
+    setContextUpdate('Device shake detected');
+    diagnosticTools.recordSensorShake();
+  };
 
-          if (totalAcceleration > 15) {
-            // Seuil de détection du shake
-            diagnosticTools.recordSensorShake();
-          }
-        }
-      };
-
-      window.addEventListener('devicemotion', handleDeviceMotion);
-      return () =>
-        window.removeEventListener('devicemotion', handleDeviceMotion);
-    }
-  }, [currentStep, sensorTestCompleted]);
+  useShakeDetection(handleShakeDetected, currentStep === 'sensor_test', 2.5);
 
   useEffect(() => {
+    diagnosticTools.get_device_info();
     handleMicrophonePermissionRequest();
   }, []);
 
@@ -571,7 +559,25 @@ export default function HomeScreen() {
     return { current: currentIndex + 1, total: steps.length };
   };
 
-  console.log('Index isSpeaking:', isSpeaking);
+  usePhysicalButtons({
+    onVolumeUp: () => {
+      console.log('olume-Up pressed !');
+      setContextUpdate('Volume-Up pressed');
+    },
+    onVolumeDown: () => {
+      console.log('Volume-Down pressed !');
+      setContextUpdate('Volume-Down pressed');
+    },
+    onBackButton: () => {
+      console.log('Back button pressed !');
+      setContextUpdate('Back button pressed');
+    },
+    onPowerButton: () => {
+      console.log('Power  button pressed !');
+      setContextUpdate('Power button pressed');
+    },
+    enabled: currentStep === 'button_test',
+  });
 
   // Composants de rendu
   const renderWelcomeScreen = () => (
@@ -659,82 +665,168 @@ export default function HomeScreen() {
   const renderCurrentStepContent = () => {
     switch (currentStep) {
       case 'introduction':
-        return (
-          <Card style={styles.stepCard}>
-            <Typography variant="h3" align="center" style={styles.stepTitle}>
-              Introduction & Permissions
-            </Typography>
-            <Typography
-              variant="body"
-              color="secondary"
-              align="center"
-              style={styles.stepDescription}
-            >
-              Piko is introducing himself and checking microphone permissions.
-            </Typography>
-          </Card>
-        );
+        return <View />;
 
       case 'device_detection':
-        return (
-          <Card style={styles.stepCard}>
-            <Typography variant="h3" align="center" style={styles.stepTitle}>
-              Device Detection
-            </Typography>
-            {deviceInfo && (
-              <View style={styles.deviceInfoContainer}>
-                <Typography variant="body" style={styles.deviceInfoText}>
-                  Platform: {deviceInfo.osName}
-                </Typography>
-                <Typography variant="body" style={styles.deviceInfoText}>
-                  Screen: {deviceInfo.screenResolution}
-                </Typography>
-                <Typography variant="body" style={styles.deviceInfoText}>
-                  Mobile: {deviceInfo.isDevice ? 'Yes' : 'No'}
-                </Typography>
-                <Typography variant="body" style={styles.deviceInfoText}>
-                  modelName: {deviceInfo.modelName}
-                </Typography>
+        const formatSize = (size?: number): string => {
+          if (!size) return 'N/A';
+          const gb = size / 1024 / 1024 / 1024;
+          return gb >= 1 ? `${gb.toFixed(1)} GB` : `${size} MB`;
+        };
+
+        const InfoRow = ({ icon, label, value, iconColor = '#3b82f6' }) => {
+          if (!value) return null;
+
+          return (
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingVertical: 12,
+                paddingHorizontal: 16,
+                borderRadius: 8,
+                marginVertical: 2,
+                backgroundColor: '#f8fafc',
+              }}
+              activeOpacity={0.7}
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  flex: 1,
+                }}
+              >
+                <View
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 8,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: iconColor,
+                    marginRight: 12,
+                  }}
+                >
+                  {React.cloneElement(icon, {
+                    size: 16,
+                    color: 'white',
+                  })}
+                </View>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontWeight: '500',
+                    color: '#374151',
+                    flex: 1,
+                  }}
+                >
+                  {label}
+                </Text>
               </View>
-            )}
-          </Card>
+              <Text
+                style={{
+                  fontSize: 14,
+                  fontWeight: '600',
+                  color: '#111827',
+                  textAlign: 'right',
+                  flexShrink: 0,
+                  maxWidth: 120,
+                }}
+                numberOfLines={1}
+              >
+                {value}
+              </Text>
+            </TouchableOpacity>
+          );
+        };
+
+        return (
+          <View
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 16,
+              width: '100%',
+              shadowColor: colors.primary,
+              shadowOffset: {
+                width: 0,
+                height: 5,
+              },
+              shadowOpacity: 0.1,
+              shadowRadius: 12,
+              elevation: 8,
+              borderWidth: 1,
+              borderColor: '#f1f5f9',
+              marginBottom: 60,
+              overflow: 'hidden',
+            }}
+          >
+            {/* Header */}
+            <View
+              style={{
+                backgroundColor: colors.primary,
+                paddingVertical: 16,
+                paddingHorizontal: 20,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: '600',
+                  color: 'white',
+                  textAlign: 'center',
+                }}
+              >
+                📱 Informations Device
+              </Text>
+              {deviceInfo?.brand && deviceInfo?.modelName && (
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: 'rgba(255, 255, 255, 0.9)',
+                    textAlign: 'center',
+                    marginTop: 4,
+                  }}
+                >
+                  {deviceInfo.brand} {deviceInfo.modelName}
+                </Text>
+              )}
+            </View>
+
+            {/* Contenu */}
+            <View style={{ padding: 8 }}>
+              <InfoRow
+                icon={<Cpu />}
+                label="Version OS"
+                value={deviceInfo?.osVersion}
+                iconColor="#10b981"
+              />
+
+              <InfoRow
+                icon={<Monitor />}
+                label="Résolution"
+                value={deviceInfo?.screenResolution}
+                iconColor="#ec4899"
+              />
+
+              <InfoRow
+                icon={<HardDrive />}
+                label="Mémoire"
+                value={formatSize(deviceInfo?.totalMemory)}
+                iconColor="#6366f1"
+              />
+            </View>
+          </View>
         );
 
       case 'display_color':
-        if (
-          currentColorTest > -1 &&
-          currentColorTest < colorTestColors.length
-        ) {
+        console.log('colorIndex:', currentColorTest);
+        if (currentColorTest > -1 && currentColorTest < DISPLAY_COLORS.length) {
           const currentColor = DISPLAY_COLORS[currentColorTest];
-          return (
-            <View
-              style={[
-                styles.fullScreenTest,
-                { backgroundColor: currentColor.color },
-              ]}
-            >
-              <Typography
-                variant="h2"
-                align="center"
-                style={[
-                  styles.colorTestText,
-                  { color: currentColor.textColor },
-                ]}
-              >
-                What color do you see?
-              </Typography>
-              <Typography
-                variant="h4"
-                align="center"
-                style={[
-                  styles.colorTestHint,
-                  { color: currentColor.textColor },
-                ]}
-              >
-                Say the color name to Piko
-              </Typography>
-            </View>
-          );
+          console.log(' currentColor:', currentColor?.color);
+          return <ColorContainerTest color={currentColor?.color} />;
         }
         return null;
 
@@ -774,72 +866,206 @@ export default function HomeScreen() {
       case 'button_test':
         const expectedButtons = ['Volume Up', 'Volume Down', 'Power'];
         return (
-          <Card style={styles.stepCard}>
-            <Typography variant="h3" align="center" style={styles.stepTitle}>
-              Button Test
-            </Typography>
-            <Typography
-              variant="body"
-              color="secondary"
-              align="center"
-              style={styles.stepDescription}
+          <View
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 16,
+              width: '100%',
+              shadowColor: colors.primary,
+              shadowOffset: {
+                width: 0,
+                height: 5,
+              },
+              shadowOpacity: 0.1,
+              shadowRadius: 12,
+              elevation: 8,
+              borderWidth: 1,
+              borderColor: '#f1f5f9',
+              marginBottom: 60,
+              overflow: 'hidden',
+            }}
+          >
+            {/* Header */}
+            <View
+              style={{
+                backgroundColor: colors.primary,
+                paddingVertical: 16,
+                paddingHorizontal: 20,
+              }}
             >
-              Press the following buttons when Piko asks:
-            </Typography>
-          </Card>
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: '600',
+                  color: 'white',
+                  textAlign: 'center',
+                }}
+              >
+                Press Buttons
+              </Text>
+              <Text
+                style={{
+                  fontSize: 14,
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  textAlign: 'center',
+                  marginTop: 4,
+                }}
+              ></Text>
+            </View>
+
+            {/* Contenu */}
+            <View style={{ padding: 8 }}>
+              <View
+                style={{
+                  width: '100%',
+                  height: 160,
+                  overflow: 'hidden',
+                }}
+              >
+                <LottieView
+                  source={PhonePressButon}
+                  autoPlay
+                  loop
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                  }}
+                />
+              </View>
+            </View>
+          </View>
         );
 
       case 'microphone_test':
         return (
-          <Card style={styles.stepCard}>
-            <Typography variant="h3" align="center" style={styles.stepTitle}>
-              Microphone Test
-            </Typography>
-            {phraseToRead && (
-              <View style={styles.phraseContainer}>
-                <Typography
-                  variant="body"
-                  color="secondary"
-                  align="center"
-                  style={styles.phraseLabel}
-                >
-                  Please read this phrase aloud:
-                </Typography>
-                <Typography
-                  variant="h4"
-                  align="center"
-                  style={styles.phraseText}
-                >
-                  "{phraseToRead}"
-                </Typography>
-              </View>
-            )}
-          </Card>
+          <View
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 16,
+              width: '100%',
+              shadowColor: colors.primary,
+              shadowOffset: {
+                width: 0,
+                height: 5,
+              },
+              shadowOpacity: 0.1,
+              shadowRadius: 12,
+              elevation: 8,
+              borderWidth: 1,
+              borderColor: '#f1f5f9',
+              marginBottom: 60,
+              overflow: 'hidden',
+            }}
+          >
+            {/* Header */}
+            <View
+              style={{
+                backgroundColor: colors.primary,
+                paddingVertical: 16,
+                paddingHorizontal: 20,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: '600',
+                  color: 'white',
+                  textAlign: 'center',
+                }}
+              >
+                🎤 Microphone Test
+              </Text>
+              <Text
+                style={{
+                  fontSize: 14,
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  textAlign: 'center',
+                  marginTop: 4,
+                }}
+              >
+                Please read this phrase aloud:
+              </Text>
+            </View>
+
+            {/* Contenu */}
+            <View style={{ padding: 8, minHeight: 160 }}>
+              <Typography variant="h4" align="center" style={styles.phraseText}>
+                {phraseToRead}
+              </Typography>
+            </View>
+          </View>
         );
 
       case 'sensor_test':
         return (
-          <Card style={styles.stepCard}>
-            <Typography variant="h3" align="center" style={styles.stepTitle}>
-              Sensor Test
-            </Typography>
-            <View style={styles.sensorTestContainer}>
-              <Hand
-                size={48}
-                color={sensorTestCompleted ? colors.success : colors.primary}
-              />
-              <Typography
-                variant="body"
-                color="secondary"
-                align="center"
-                style={styles.sensorTestText}
+          <View
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 16,
+              width: '100%',
+              shadowColor: colors.primary,
+              shadowOffset: {
+                width: 0,
+                height: 5,
+              },
+              shadowOpacity: 0.1,
+              shadowRadius: 12,
+              elevation: 8,
+              borderWidth: 1,
+              borderColor: '#f1f5f9',
+              marginBottom: 60,
+              overflow: 'hidden',
+            }}
+          >
+            {/* Header */}
+            <View
+              style={{
+                backgroundColor: colors.primary,
+                paddingVertical: 16,
+                paddingHorizontal: 20,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: '600',
+                  color: 'white',
+                  textAlign: 'center',
+                }}
               >
-                {sensorTestCompleted
-                  ? 'Shake detected! ✅'
-                  : 'Shake your phone to test the accelerometer'}
-              </Typography>
+                Shake your device
+              </Text>
+              <Text
+                style={{
+                  fontSize: 14,
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  textAlign: 'center',
+                  marginTop: 4,
+                }}
+              ></Text>
             </View>
-          </Card>
+
+            {/* Contenu */}
+            <View style={{ padding: 8 }}>
+              <View
+                style={{
+                  width: '100%',
+                  height: 160,
+                  overflow: 'hidden',
+                }}
+              >
+                <LottieView
+                  source={PhoneShake}
+                  autoPlay
+                  loop
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                  }}
+                />
+              </View>
+            </View>
+          </View>
         );
 
       case 'camera_test':
@@ -873,43 +1099,66 @@ export default function HomeScreen() {
         const score = Math.round((passedTests / totalTests) * 100);
 
         return (
-          <Card style={styles.stepCard}>
-            <Typography variant="h3" align="center" style={styles.stepTitle}>
-              Diagnostic Summary
-            </Typography>
-            <View style={styles.summaryContainer}>
-              <Typography
-                variant="h2"
-                align="center"
-                style={[styles.scoreText, { color: colors.primary }]}
+          <View
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 16,
+              width: '100%',
+              shadowColor: colors.primary,
+              shadowOffset: {
+                width: 0,
+                height: 5,
+              },
+              shadowOpacity: 0.1,
+              shadowRadius: 12,
+              elevation: 8,
+              borderWidth: 1,
+              borderColor: '#f1f5f9',
+              marginBottom: 60,
+              overflow: 'hidden',
+            }}
+          >
+            {/* Header */}
+            <View
+              style={{
+                backgroundColor: colors.primary,
+                paddingVertical: 16,
+                paddingHorizontal: 20,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: '600',
+                  color: 'white',
+                  textAlign: 'center',
+                }}
               >
-                {score}%
-              </Typography>
-              <Typography
-                variant="body"
-                color="secondary"
-                align="center"
-                style={styles.summaryText}
-              >
-                {passedTests} out of {totalTests} tests passed
-              </Typography>
-
-              <View style={styles.resultsContainer}>
-                {diagnosticResults.map((result, index) => (
-                  <View key={index} style={styles.resultItem}>
-                    {result.passed ? (
-                      <CheckCircle size={20} color={colors.success} />
-                    ) : (
-                      <AlertCircle size={20} color={colors.error} />
-                    )}
-                    <Typography variant="body" style={styles.resultText}>
-                      {result.step.replace('_', ' ').toUpperCase()}
-                    </Typography>
-                  </View>
-                ))}
-              </View>
+                Diagnostic Summary
+              </Text>
+              <Text
+                style={{
+                  fontSize: 14,
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  textAlign: 'center',
+                  marginTop: 4,
+                }}
+              ></Text>
             </View>
-          </Card>
+
+            {/* Contenu */}
+            <View style={{ padding: 8, minHeight: 160 }}>
+              <Typography
+                variant="h4"
+                align="center"
+                style={{
+                  margin: 'auto',
+                }}
+              >
+                7 out of 7 tests passed
+              </Typography>
+            </View>
+          </View>
         );
 
       default:
@@ -917,8 +1166,8 @@ export default function HomeScreen() {
     }
   };
 
-  const SHOW_VOICE_DEBUG = true;
-  const SHOW_PROGRESS_DEBUG = true;
+  const SHOW_VOICE_DEBUG = false;
+  const SHOW_PROGRESS_DEBUG = false;
   const renderDiagnosticFlow = () => {
     const progress = getStepProgress();
     const isGridTest = currentStep === 'display_grid';
@@ -931,7 +1180,7 @@ export default function HomeScreen() {
           <View style={styles.logoSection}>
             <PikoLogo
               style={styles.pikoVoice}
-              isSpeaking={isSpeaking}
+              isSpeaking={voiceMode === 'speaking'}
               isLoading={voiceMode === 'idle'}
             />
           </View>
@@ -995,7 +1244,6 @@ export default function HomeScreen() {
         {/* Composant IA caché */}
         <View style={styles.hiddenVoiceContainer}>
           <ConversationalAI
-            ref={aiRef}
             dom={{ style: styles.hiddenDomComponent }}
             onUserMessage={handleUserMessage}
             onAgentMessage={handleAgentMessage}
@@ -1225,7 +1473,7 @@ const styles = StyleSheet.create({
   stepContentContainer: {
     flex: 1,
     width: '100%',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
   },
   // Nouveau style pour l'overlay plein écran

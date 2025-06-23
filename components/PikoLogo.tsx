@@ -78,7 +78,7 @@ const PikoLogo: React.FC<Props> = ({ isSpeaking, isLoading, size = 192 }) => {
         borderRadius: waveSize / 2,
         backgroundColor: 'rgba(59,130,246,0.4)',
         left: (size - waveSize) / 2,
-        top: (size - waveSize) / 2,
+        top: (size - waveSize) / 2 - 4,
         transform: [
           {
             scale: scaleAnim.interpolate({
