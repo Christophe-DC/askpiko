@@ -2,7 +2,13 @@
 
 import { useConversation } from '@elevenlabs/react';
 import { Mic, MicOff, Volume2, VolumeX, Loader } from 'lucide-react-native';
-import { useImperativeHandle, useCallback, useEffect, useState } from 'react';
+import {
+  useImperativeHandle,
+  useCallback,
+  useEffect,
+  useState,
+  forwardRef,
+} from 'react';
 import { View, Pressable, StyleSheet, Text, Platform } from 'react-native';
 import diagnosticTools from '@/utils/diagnosticTools';
 import { Audio } from 'expo-av';
@@ -324,7 +330,7 @@ const ConversationalAI = ({
               "Hi, I'm Piko — your AI assistant for smartphone diagnostics. I'll help you test your device step by step. Are you ready to begin?",
           },*/
           // Mobile-optimized audio settings
-          audio: {
+          /*audio: {
             inputGain: isMobile ? 1.3 : 1.0, // Higher input gain for mobile
             outputGain: isMobile ? 1.2 : 1.0, // Higher output gain for mobile
             echoCancellation: true,
@@ -340,7 +346,7 @@ const ConversationalAI = ({
               prefixPaddingMs: isMobile ? 400 : 300,
               silenceDurationMs: isMobile ? 1000 : 800, // Longer silence detection for mobile
             },
-          },
+          },*/
         },
       });
       conversation;

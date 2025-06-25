@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
-import { BackHandler, Platform, AppState } from 'react-native';
+import { BackHandler, Platform, NativeModules, AppState } from 'react-native';
 import KeyEvent from 'react-native-keyevent';
+
+const { KeyEventInterceptModule } = NativeModules;
 
 const usePhysicalButtons = (callbacks: {
   onVolumeUp?: () => void;
@@ -25,6 +27,20 @@ const usePhysicalButtons = (callbacks: {
 
     console.log('🎮 Physical buttons detection ENABLED');
 
+    console.log(
+      '🔍 KeyEventInterceptModule available:',
+      !!KeyEventInterceptModule
+    );
+    console.log(
+      '🔍 KeyEventInterceptModule methods:',
+      KeyEventInterceptModule ? Object.keys(KeyEventInterceptModule) : 'N/A'
+    );
+
+    if (KeyEventInterceptModule) {
+      KeyEventInterceptModule.setKeyInterception(true);
+      console.log('🚫 Key default actions DISABLED');
+    }
+
     // Bouton retour Android
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
@@ -45,6 +61,10 @@ const usePhysicalButtons = (callbacks: {
       } else if (keyCode === 25) {
         console.log('🔉 Volume Down pressed');
         onVolumeDown();
+      } else if (keyCode === 26) {
+        // KeyCode 26 = KEYCODE_POWER
+        console.log('⚡ Power button pressed (KeyEvent)');
+        onPowerButton();
       }
     });
 
@@ -60,9 +80,13 @@ const usePhysicalButtons = (callbacks: {
       handleAppStateChange
     );
 
-    // Nettoyage
     return () => {
       console.log('🎮 Physical buttons detection DISABLED');
+      if (KeyEventInterceptModule) {
+        KeyEventInterceptModule.setKeyInterception(false);
+        console.log('✅ Key default actions RESTORED');
+      }
+
       backHandler.remove();
       KeyEvent.removeKeyDownListener();
       appStateSubscription?.remove();

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -24,9 +24,7 @@ import {
   HardDrive,
   Loader as Loader2,
 } from 'lucide-react-native';
-import ConversationalAI, {
-  ConversationalAIHandle,
-} from '@/components/ConversationalAI';
+import ConversationalAI from '@/components/ConversationalAI';
 import * as Device from 'expo-device';
 import PikoLogo from '@/components/PikoLogo';
 import ColorContainerTest from '@/components/ColorContainerTest';
@@ -35,6 +33,7 @@ import PhonePressButon from '@/assets/animation/PhonePressButon.json';
 import PhoneShake from '@/assets/animation/PhoneShake.json';
 import { useShakeDetection } from '@/hooks/useShakeDetection';
 import { usePhysicalButtons } from '@/hooks/usePhysicalButtons';
+import DiagnosticSummary from '@/components/ui/DiagnosticSummary';
 
 // Types pour le diagnostic
 type DiagnosticStep =
@@ -79,15 +78,6 @@ const DISPLAY_COLORS = [
   { name: 'Yellow', color: '#FFFF00', textColor: '#000000' },
   { name: 'Purple', color: '#800080', textColor: '#FFFFFF' },
   { name: 'Orange', color: '#FFA500', textColor: '#000000' },
-];
-
-// Phrases pour le test microphone
-const MICROPHONE_PHRASES = [
-  'The quick brown fox jumps over the lazy dog',
-  'Hello world, this is a microphone test',
-  'Testing one two three four five',
-  'The weather is beautiful today',
-  'Technology makes our lives easier',
 ];
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -427,6 +417,23 @@ export default function HomeScreen() {
     }
   };
 
+  const conversationalAIProps = useRef({
+    onUserMessage: handleUserMessage,
+    onAgentMessage: handleAgentMessage,
+    onModeChange: handleModeChange,
+    dom: { style: styles.hiddenDomComponent },
+    autoStart: true,
+    isVisible: true,
+    checkMicrophonePermission: diagnosticTools.test_microphone,
+    getDeviceInfos: diagnosticTools.get_device_info,
+    updateDiagnosticStep: diagnosticTools.updateDiagnosticStep,
+    updatePhraseToRead: diagnosticTools.updatePhraseToRead,
+    updateColorToShow: diagnosticTools.updateColorToShow,
+    recordButtonPressed: diagnosticTools.recordButtonPressed,
+    recordSensorShake: diagnosticTools.recordSensorShake,
+    recordCameraPhoto: diagnosticTools.recordCameraPhoto,
+  });
+
   // Gestionnaires d'événements pour les tests
   const handleGridCellClick = (index: number) => {
     console.log('handleGridCellClick:', index);
@@ -582,7 +589,12 @@ export default function HomeScreen() {
   // Composants de rendu
   const renderWelcomeScreen = () => (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
-      <View style={[styles.content, { paddingTop: insets.top + 60 }]}>
+      <View
+        style={[
+          styles.content,
+          { paddingTop: insets.top + 60, paddingBottom: insets.bottom + 60 },
+        ]}
+      >
         <View style={styles.logoSection}>
           <PikoLogo
             style={styles.pikoVoice}
@@ -823,12 +835,13 @@ export default function HomeScreen() {
 
       case 'display_color':
         console.log('colorIndex:', currentColorTest);
-        if (currentColorTest > -1 && currentColorTest < DISPLAY_COLORS.length) {
+        return null;
+      /*if (currentColorTest > -1 && currentColorTest < DISPLAY_COLORS.length) {
           const currentColor = DISPLAY_COLORS[currentColorTest];
           console.log(' currentColor:', currentColor?.color);
           return <ColorContainerTest color={currentColor?.color} />;
         }
-        return null;
+        return null;*/
 
       case 'display_grid':
         return (
@@ -989,7 +1002,12 @@ export default function HomeScreen() {
 
             {/* Contenu */}
             <View style={{ padding: 8, minHeight: 160 }}>
-              <Typography variant="h4" align="center" style={styles.phraseText}>
+              <Typography
+                color={'primary'}
+                variant="h4"
+                align="center"
+                style={styles.phraseText}
+              >
                 {phraseToRead}
               </Typography>
             </View>
@@ -1094,72 +1112,17 @@ export default function HomeScreen() {
         );
 
       case 'summary':
-        const passedTests = diagnosticResults.filter((r) => r.passed).length;
-        const totalTests = diagnosticResults.length;
-        const score = Math.round((passedTests / totalTests) * 100);
+        const testResults = {
+          device_detection_test: true,
+          display_color_test: true,
+          touch_test: true,
+          button_test: true,
+          microphone_test: true,
+          sensor_test: true,
+          camera_test: true,
+        };
 
-        return (
-          <View
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: 16,
-              width: '100%',
-              shadowColor: colors.primary,
-              shadowOffset: {
-                width: 0,
-                height: 5,
-              },
-              shadowOpacity: 0.1,
-              shadowRadius: 12,
-              elevation: 8,
-              borderWidth: 1,
-              borderColor: '#f1f5f9',
-              marginBottom: 60,
-              overflow: 'hidden',
-            }}
-          >
-            {/* Header */}
-            <View
-              style={{
-                backgroundColor: colors.primary,
-                paddingVertical: 16,
-                paddingHorizontal: 20,
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 18,
-                  fontWeight: '600',
-                  color: 'white',
-                  textAlign: 'center',
-                }}
-              >
-                Diagnostic Summary
-              </Text>
-              <Text
-                style={{
-                  fontSize: 14,
-                  color: 'rgba(255, 255, 255, 0.9)',
-                  textAlign: 'center',
-                  marginTop: 4,
-                }}
-              ></Text>
-            </View>
-
-            {/* Contenu */}
-            <View style={{ padding: 8, minHeight: 160 }}>
-              <Typography
-                variant="h4"
-                align="center"
-                style={{
-                  margin: 'auto',
-                }}
-              >
-                7 out of 7 tests passed
-              </Typography>
-            </View>
-          </View>
-        );
+        return <DiagnosticSummary testResults={testResults} />;
 
       default:
         return null;
@@ -1172,10 +1135,24 @@ export default function HomeScreen() {
     const progress = getStepProgress();
     const isGridTest = currentStep === 'display_grid';
 
+    const containerBackgroundColor =
+      currentStep === 'display_color'
+        ? DISPLAY_COLORS[currentColorTest]?.color
+        : colors.surface;
     return (
-      <View style={[styles.container, { backgroundColor: colors.surface }]}>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: containerBackgroundColor },
+        ]}
+      >
         {/* Contenu principal - toujours visible */}
-        <View style={[styles.content, { paddingTop: insets.top + 60 }]}>
+        <View
+          style={[
+            styles.content,
+            { paddingTop: insets.top + 60, paddingBottom: insets.bottom + 60 },
+          ]}
+        >
           {/* Logo - même position que welcome screen */}
           <View style={styles.logoSection}>
             <PikoLogo
@@ -1244,21 +1221,8 @@ export default function HomeScreen() {
         {/* Composant IA caché */}
         <View style={styles.hiddenVoiceContainer}>
           <ConversationalAI
-            dom={{ style: styles.hiddenDomComponent }}
-            onUserMessage={handleUserMessage}
-            onAgentMessage={handleAgentMessage}
-            onModeChange={handleModeChange}
-            autoStart={voiceModeEnabled && voiceConversationStarted}
-            isVisible={voiceModeEnabled && voiceConversationStarted}
-            checkMicrophonePermission={diagnosticTools.test_microphone}
-            getDeviceInfos={diagnosticTools.get_device_info}
-            updateDiagnosticStep={diagnosticTools.updateDiagnosticStep}
-            updatePhraseToRead={diagnosticTools.updatePhraseToRead}
-            updateColorToShow={diagnosticTools.updateColorToShow}
-            recordButtonPressed={diagnosticTools.recordButtonPressed}
-            recordSensorShake={diagnosticTools.recordSensorShake}
-            recordCameraPhoto={diagnosticTools.recordCameraPhoto}
             contextUpdate={contextUpdate}
+            {...conversationalAIProps.current}
           />
         </View>
       </View>
@@ -1280,7 +1244,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: designTokens.spacing.xl,
   },
@@ -1520,8 +1484,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
+    right: 0,
+    bottom: 0,
     flexDirection: 'row',
     flexWrap: 'wrap',
   },

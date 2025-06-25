@@ -2,6 +2,7 @@ package com.askpiko.app
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
@@ -13,6 +14,10 @@ import expo.modules.splashscreen.SplashScreenManager
 
 
 class MainActivity : ReactActivity() {
+
+
+    private var interceptKeyEvents = false
+
   override fun onCreate(savedInstanceState: Bundle?) {
     // Set the theme to AppTheme BEFORE onCreate to support
     // coloring the background, status bar, and navigation bar.
@@ -65,7 +70,28 @@ class MainActivity : ReactActivity() {
   }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        Log.d("MainActivity", "onKeyDown called - keyCode: $keyCode, interceptKeyEvents: $interceptKeyEvents")
+
         KeyEventModule.getInstance().onKeyDownEvent(keyCode, event)
+
+        if (interceptKeyEvents) {
+            val interceptedKeyCodes = setOf(
+                KeyEvent.KEYCODE_VOLUME_UP,    // 24
+                KeyEvent.KEYCODE_VOLUME_DOWN,  // 25
+                KeyEvent.KEYCODE_POWER,        // 26
+                KeyEvent.KEYCODE_BACK          // 4
+            )
+
+            if (interceptedKeyCodes.contains(keyCode)) {
+                return true
+            }
+        }
+
+
         return super.onKeyDown(keyCode, event)
+    }
+
+    fun setKeyInterception(enabled: Boolean) {
+        interceptKeyEvents = enabled
     }
 }
