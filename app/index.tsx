@@ -6,6 +6,9 @@ import {
   StatusBar,
   Dimensions,
   TouchableOpacity,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/useTheme';
@@ -34,6 +37,8 @@ import PhoneShake from '@/assets/animation/PhoneShake.json';
 import { useShakeDetection } from '@/hooks/useShakeDetection';
 import { usePhysicalButtons } from '@/hooks/usePhysicalButtons';
 import DiagnosticSummary from '@/components/ui/DiagnosticSummary';
+import DiagnosticComplete from '@/components/DiagnosticComplete';
+import ConversationalAIContainer from '@/components/ConversationalAIContainer';
 
 // Types pour le diagnostic
 type DiagnosticStep =
@@ -811,21 +816,21 @@ export default function HomeScreen() {
             <View style={{ padding: 8 }}>
               <InfoRow
                 icon={<Cpu />}
-                label="Version OS"
+                label="OS Version"
                 value={deviceInfo?.osVersion}
                 iconColor="#10b981"
               />
 
               <InfoRow
                 icon={<Monitor />}
-                label="Résolution"
+                label="Resolution"
                 value={deviceInfo?.screenResolution}
                 iconColor="#ec4899"
               />
 
               <InfoRow
                 icon={<HardDrive />}
-                label="Mémoire"
+                label="Memory"
                 value={formatSize(deviceInfo?.totalMemory)}
                 iconColor="#6366f1"
               />
@@ -1122,7 +1127,7 @@ export default function HomeScreen() {
           camera_test: true,
         };
 
-        return <DiagnosticSummary testResults={testResults} />;
+        return <DiagnosticComplete />;
 
       default:
         return null;
@@ -1134,6 +1139,7 @@ export default function HomeScreen() {
   const renderDiagnosticFlow = () => {
     const progress = getStepProgress();
     const isGridTest = currentStep === 'display_grid';
+    const isEmailStep = currentStep === 'summary';
 
     const containerBackgroundColor =
       currentStep === 'display_color'
@@ -1146,81 +1152,120 @@ export default function HomeScreen() {
           { backgroundColor: containerBackgroundColor },
         ]}
       >
-        {/* Contenu principal - toujours visible */}
-        <View
-          style={[
-            styles.content,
-            { paddingTop: insets.top + 60, paddingBottom: insets.bottom + 60 },
-          ]}
-        >
-          {/* Logo - même position que welcome screen */}
-          <View style={styles.logoSection}>
-            <PikoLogo
-              style={styles.pikoVoice}
-              isSpeaking={voiceMode === 'speaking'}
-              isLoading={voiceMode === 'idle'}
-            />
-          </View>
-
-          {/* Barre de progression (debug) */}
-          {SHOW_PROGRESS_DEBUG && (
-            <Card style={styles.progressCard}>
-              <View style={styles.progressHeader}>
-                <Typography variant="h4" style={styles.progressTitle}>
-                  Step {progress.current} of {progress.total}
-                </Typography>
-                <Button
-                  title="Stop"
-                  variant="ghost"
-                  onPress={handleStopDiagnostic}
-                  style={styles.stopButton}
+        {/* Pour l'étape email, on utilise KeyboardAvoidingView */}
+        {isEmailStep ? (
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+          >
+            <ScrollView
+              contentContainerStyle={{ flexGrow: 1 }}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+              {/* Logo - même position que welcome screen */}
+              <View
+                style={[styles.logoSection, { paddingTop: insets.top + 60 }]}
+              >
+                <PikoLogo
+                  style={styles.pikoVoice}
+                  isSpeaking={voiceMode === 'speaking'}
+                  isLoading={voiceMode === 'idle'}
                 />
               </View>
-              <View style={styles.progressBarContainer}>
-                <View
-                  style={[
-                    styles.progressBar,
-                    { backgroundColor: colors.border },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.progressFill,
-                      {
-                        width: `${(progress.current / progress.total) * 100}%`,
-                        backgroundColor: colors.primary,
-                      },
-                    ]}
-                  />
-                </View>
+
+              {/* Zone de contenu pour l'étape email */}
+              <View style={[styles.stepContentContainer]}>
+                {renderCurrentStepContent()}
               </View>
-            </Card>
-          )}
+            </ScrollView>
+          </KeyboardAvoidingView>
+        ) : (
+          /* Structure normale pour les autres étapes */
+          <>
+            {/* Contenu principal - toujours visible */}
+            <View
+              style={[
+                styles.content,
+                {
+                  paddingTop: insets.top + 60,
+                  paddingBottom: insets.bottom + 60,
+                },
+              ]}
+            >
+              {/* Logo - même position que welcome screen */}
+              <View style={styles.logoSection}>
+                <PikoLogo
+                  style={styles.pikoVoice}
+                  isSpeaking={voiceMode === 'speaking'}
+                  isLoading={voiceMode === 'idle'}
+                />
+              </View>
 
-          {/* État vocal (debug) */}
-          {SHOW_VOICE_DEBUG &&
-            voiceModeEnabled &&
-            voiceConversationStarted &&
-            renderVoiceStatus()}
+              {/* Barre de progression (debug) */}
+              {SHOW_PROGRESS_DEBUG && (
+                <Card style={styles.progressCard}>
+                  <View style={styles.progressHeader}>
+                    <Typography variant="h4" style={styles.progressTitle}>
+                      Step {progress.current} of {progress.total}
+                    </Typography>
+                    <Button
+                      title="Stop"
+                      variant="ghost"
+                      onPress={handleStopDiagnostic}
+                      style={styles.stopButton}
+                    />
+                  </View>
+                  <View style={styles.progressBarContainer}>
+                    <View
+                      style={[
+                        styles.progressBar,
+                        { backgroundColor: colors.border },
+                      ]}
+                    >
+                      <View
+                        style={[
+                          styles.progressFill,
+                          {
+                            width: `${
+                              (progress.current / progress.total) * 100
+                            }%`,
+                            backgroundColor: colors.primary,
+                          },
+                        ]}
+                      />
+                    </View>
+                  </View>
+                </Card>
+              )}
 
-          {/* Zone de contenu pour les étapes (pas pour grid) */}
-          {!isGridTest && (
-            <View style={styles.stepContentContainer}>
-              {renderCurrentStepContent()}
+              {/* État vocal (debug) */}
+              {SHOW_VOICE_DEBUG &&
+                voiceModeEnabled &&
+                voiceConversationStarted &&
+                renderVoiceStatus()}
+
+              {/* Zone de contenu pour les étapes (pas pour grid) */}
+              {!isGridTest && (
+                <View style={styles.stepContentContainer}>
+                  {renderCurrentStepContent()}
+                </View>
+              )}
             </View>
-          )}
-        </View>
 
-        {/* Overlay pour le test de grille (par-dessus tout) */}
-        {isGridTest && (
-          <View style={styles.fullScreenOverlay}>
-            {renderCurrentStepContent()}
-          </View>
+            {/* Overlay pour le test de grille (par-dessus tout) */}
+            {isGridTest && (
+              <View style={styles.fullScreenOverlay}>
+                {renderCurrentStepContent()}
+              </View>
+            )}
+          </>
         )}
 
         {/* Composant IA caché */}
         <View style={styles.hiddenVoiceContainer}>
-          <ConversationalAI
+          <ConversationalAIContainer
             contextUpdate={contextUpdate}
             {...conversationalAIProps.current}
           />

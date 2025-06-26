@@ -2,11 +2,12 @@
     "build": {
         "preview": {
             "android": {
-                "buildType": "apk"
+                "buildType": "apk",
+                "credentialsSource": "local"
             },
             "env": {
-                "EXPO_PUBLIC_ELEVENLABS_API_KEY": "sk_e65ba3736e4b5a07ec6eae9e675eabd388e25fc7470599b1",
-                "EXPO_PUBLIC_ELEVENLABS_AGENT_ID": "agent_01jx2px3ypfe8a6ctz67rp56cf"
+                "EXPO_PUBLIC_ELEVENLABS_API_KEY": "sk_ae108ac240c2bb5509a07685fc32a3a81a087b61fb35a72a",
+                "EXPO_PUBLIC_ELEVENLABS_AGENT_ID": "agent_01jygwn68nexxtmpbx6k6ft7qp"
             }
         },
         "development": {
@@ -16,8 +17,18 @@
                 "buildType": "apk"
             },
             "env": {
-                "EXPO_PUBLIC_ELEVENLABS_API_KEY": "sk_e65ba3736e4b5a07ec6eae9e675eabd388e25fc7470599b1",
-                "EXPO_PUBLIC_ELEVENLABS_AGENT_ID": "agent_01jx2px3ypfe8a6ctz67rp56cf"
+                "EXPO_PUBLIC_ELEVENLABS_API_KEY": "sk_ae108ac240c2bb5509a07685fc32a3a81a087b61fb35a72a",
+                "EXPO_PUBLIC_ELEVENLABS_AGENT_ID": "agent_01jygwn68nexxtmpbx6k6ft7qp"
+            }
+        },
+        "release": {
+            "android": {
+                "buildType": "app-bundle",
+                "credentialsSource": "local"
+            },
+            "env": {
+                "EXPO_PUBLIC_ELEVENLABS_API_KEY": "sk_ae108ac240c2bb5509a07685fc32a3a81a087b61fb35a72a",
+                "EXPO_PUBLIC_ELEVENLABS_AGENT_ID": "agent_01jygwn68nexxtmpbx6k6ft7qp"
             }
         },
         "preview2": {
