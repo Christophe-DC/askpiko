@@ -2,8 +2,8 @@
 import React, { forwardRef } from 'react';
 import ConversationalAI from './ConversationalAI';
 
-const ConversationalAIContainer = forwardRef((props, ref) => {
-  return <ConversationalAI {...props} ref={ref} />;
+const ConversationalAIContainer = React.memo((props) => {
+  return <ConversationalAI {...props} />;
 });
 
 export default ConversationalAIContainer;

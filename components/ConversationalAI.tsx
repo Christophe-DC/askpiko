@@ -330,7 +330,7 @@ const ConversationalAI = ({
               "Hi, I'm Piko — your AI assistant for smartphone diagnostics. I'll help you test your device step by step. Are you ready to begin?",
           },*/
           // Mobile-optimized audio settings
-          /*audio: {
+          audio: {
             inputGain: isMobile ? 1.3 : 1.0, // Higher input gain for mobile
             outputGain: isMobile ? 1.2 : 1.0, // Higher output gain for mobile
             echoCancellation: true,
@@ -339,7 +339,7 @@ const ConversationalAI = ({
             sampleRate: isMobile ? 16000 : 24000, // Lower sample rate for mobile stability
           },
           // Mobile-optimized conversation settings
-          conversation: {
+          /*conversation: {
             turnDetection: {
               type: 'server_vad',
               threshold: isMobile ? 0.6 : 0.5, // Higher threshold for mobile (less sensitive)

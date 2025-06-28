@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
+  Image,
   StyleSheet,
   StatusBar,
   Dimensions,
@@ -9,6 +10,9 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Platform,
+  Pressable,
+  Linking,
+  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/useTheme';
@@ -39,6 +43,14 @@ import { usePhysicalButtons } from '@/hooks/usePhysicalButtons';
 import DiagnosticSummary from '@/components/ui/DiagnosticSummary';
 import DiagnosticComplete from '@/components/DiagnosticComplete';
 import ConversationalAIContainer from '@/components/ConversationalAIContainer';
+import CameraDiagnostic from '@/components/CameraDiagnostic';
+import { CompleteModal } from '@/components/CompleteModal';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = 'https://unsllkmygvzhkqcdhglk.supabase.co';
+const supabaseAnonKey =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuc2xsa215Z3Z6aGtxY2RoZ2xrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNTIzMTgsImV4cCI6MjA2NjYyODMxOH0.DP_JVHToH7wIeep4jFji8wA9R_FjH4dYExjU2O52CPo';
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Types pour le diagnostic
 type DiagnosticStep =
@@ -93,7 +105,7 @@ const TOTAL_COLUMNS = 5;
 const TOTAL_CELLS = TOTAL_ROWS * TOTAL_COLUMNS;
 
 export default function HomeScreen() {
-  const { colors } = useTheme();
+  const { isDark, colors } = useTheme();
   const insets = useSafeAreaInsets();
 
   // États principaux
@@ -129,6 +141,9 @@ export default function HomeScreen() {
   const [sensorTestCompleted, setSensorTestCompleted] = useState(false);
   const [cameraTestCompleted, setCameraTestCompleted] = useState(false);
   const [contextUpdate, setContextUpdate] = useState('');
+  const [backFaceDetected, setBackFaceDetected] = useState(false);
+  const [frontFaceDetected, setFrontFaceDetected] = useState(false);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
 
   // Résultats des tests
   const [diagnosticResults, setDiagnosticResults] = useState<
@@ -203,7 +218,7 @@ export default function HomeScreen() {
           nextDiagStep = 'sensor_test';
           break;
         case 8:
-          nextDiagStep = 'summary'; //'camera_test';
+          nextDiagStep = 'camera_test'; //'camera_test';
           break;
         case 9:
           nextDiagStep = 'summary';
@@ -339,6 +354,8 @@ export default function HomeScreen() {
 
   const setupCameraTest = () => {
     setCameraTestCompleted(false);
+    setBackFaceDetected(false);
+    setFrontFaceDetected(false);
   };
 
   // Fonction pour ajouter un résultat de diagnostic
@@ -401,6 +418,67 @@ export default function HomeScreen() {
     setSensorTestCompleted(false);
     setCameraTestCompleted(false);
   };
+
+  async function handleEmailSumbit(email: string) {
+    try {
+      // Insert into device_reports table
+      const { data, error } = await supabase
+        .from('device_reports')
+        .insert([
+          {
+            user_email: email,
+            device_name: deviceInfo?.deviceName,
+            model: deviceInfo?.modelName,
+            manufacturer: deviceInfo?.manufacturer,
+            os_version: deviceInfo?.osVersion,
+            os_name: deviceInfo?.osName,
+            api_level: deviceInfo?.platformApiLevel,
+          },
+        ])
+        .select()
+        .single();
+
+      if (error || !data) {
+        console.error('Insert error:', error);
+        Alert.alert('Error', 'Failed to save your report.');
+        return;
+      }
+
+      const reportId = data.id;
+      console.log('✅ Inserted report ID:', reportId);
+
+      // Call Supabase Edge Function to generate PDF
+      /*const pdfRes = await fetch(
+        'https://unsllkmygvzhkqcdhglk.supabase.co/functions/v1/parse-pdf',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${supabaseAnonKey}`,
+          },
+          body: JSON.stringify({ reportId }),
+        }
+      );
+
+      if (!pdfRes.ok) {
+        const err = await pdfRes.text();
+        console.error('PDF generation error:', err);
+        Alert.alert('Error', 'Failed to generate the PDF.');
+        return;
+      }
+
+      const pdfResult = await pdfRes.json();
+      console.log('📄 PDF URL:', pdfResult.url);*/
+
+      setShowCompleteModal(true);
+    } catch (e) {
+      console.error('Unexpected error:', e);
+      Alert.alert(
+        'Unexpected Error',
+        'Something went wrong. Please try again.'
+      );
+    }
+  }
 
   // Gestion des permissions microphone
   const handleMicrophonePermissionRequest = async () => {
@@ -590,6 +668,22 @@ export default function HomeScreen() {
     },
     enabled: currentStep === 'button_test',
   });
+
+  const onFaceDetected = (camera: string, isDetected: boolean) => {
+    if (isDetected === true) {
+      if (camera === 'front') {
+        if (!frontFaceDetected) {
+          setFrontFaceDetected(isDetected);
+          setContextUpdate('Front camera: face detected');
+        }
+      } else {
+        if (!backFaceDetected) {
+          setBackFaceDetected(isDetected);
+          setContextUpdate('Back camera: face detected');
+        }
+      }
+    }
+  };
 
   // Composants de rendu
   const renderWelcomeScreen = () => (
@@ -1092,29 +1186,7 @@ export default function HomeScreen() {
         );
 
       case 'camera_test':
-        return (
-          <Card style={styles.stepCard}>
-            <Typography variant="h3" align="center" style={styles.stepTitle}>
-              Camera Test
-            </Typography>
-            <View style={styles.cameraTestContainer}>
-              <Camera
-                size={48}
-                color={cameraTestCompleted ? colors.success : colors.primary}
-              />
-              <Typography
-                variant="body"
-                color="secondary"
-                align="center"
-                style={styles.cameraTestText}
-              >
-                {cameraTestCompleted
-                  ? 'Photo taken! ✅'
-                  : 'Take a photo when Piko asks'}
-              </Typography>
-            </View>
-          </Card>
-        );
+        return <CameraDiagnostic onFaceDetected={onFaceDetected} />;
 
       case 'summary':
         const testResults = {
@@ -1127,7 +1199,7 @@ export default function HomeScreen() {
           camera_test: true,
         };
 
-        return <DiagnosticComplete />;
+        return <DiagnosticComplete onSubmit={handleEmailSumbit} />;
 
       default:
         return null;
@@ -1274,10 +1346,41 @@ export default function HomeScreen() {
     );
   };
 
+  const boltImageSource = isDark
+    ? require('../assets/images/bolt_white.png')
+    : require('../assets/images/bolt_black.png');
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <StatusBar style="auto" />
+      <Pressable
+        onPress={() => Linking.openURL('https://bolt.new/')}
+        style={{
+          width: 48,
+          height: 48,
+          position: 'absolute',
+          top: insets.top + 20,
+          right: 12,
+          zIndex: 2,
+        }}
+      >
+        <Image
+          source={boltImageSource}
+          style={{
+            width: 48,
+            height: 48,
+          }}
+          resizeMode="contain"
+        />
+      </Pressable>
       {showDiagnosticFlow ? renderDiagnosticFlow() : renderWelcomeScreen()}
+      <CompleteModal
+        visible={showCompleteModal}
+        onClose={() => {
+          setCurrentStep('introduction');
+          setShowDiagnosticFlow(false);
+          setShowCompleteModal(false);
+        }}
+      />
     </View>
   );
 }

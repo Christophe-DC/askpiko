@@ -12,7 +12,7 @@ import {
 const DiagnosticComplete = ({
   onSubmit,
 }: {
-  onSubmit: (email: string) => {};
+  onSubmit: (email: string) => void;
 }) => {
   const { colors } = useTheme();
   const [email, setEmail] = useState('');
