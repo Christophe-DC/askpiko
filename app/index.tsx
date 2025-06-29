@@ -46,6 +46,7 @@ import ConversationalAIContainer from '@/components/ConversationalAIContainer';
 import CameraDiagnostic from '@/components/CameraDiagnostic';
 import { CompleteModal } from '@/components/CompleteModal';
 import { createClient } from '@supabase/supabase-js';
+import DeviceInfo from 'react-native-device-info';
 
 const supabaseUrl = 'https://unsllkmygvzhkqcdhglk.supabase.co';
 const supabaseAnonKey =
@@ -73,7 +74,7 @@ interface DiagnosticResult {
   timestamp: number;
 }
 
-interface DeviceInfo {
+interface DeviceInfoReport {
   brand: string | null;
   manufacturer: string;
   modelName: string | null;
@@ -128,7 +129,7 @@ export default function HomeScreen() {
   const [lastUserMessage, setLastUserMessage] = useState('');
 
   // États pour les tests spécifiques
-  const [deviceInfo, setDeviceInfo] = useState<DeviceInfo | null>(null);
+  const [deviceInfo, setDeviceInfo] = useState<DeviceInfoReport | null>(null);
   const [currentColorTest, setCurrentColorTest] = useState(0);
   const [colorTestColors, setColorTestColors] = useState<typeof DISPLAY_COLORS>(
     []
@@ -144,6 +145,13 @@ export default function HomeScreen() {
   const [backFaceDetected, setBackFaceDetected] = useState(false);
   const [frontFaceDetected, setFrontFaceDetected] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
+
+  const [displayColorTest, setDisplayColorTest] = useState(false);
+  const [touchTest, setTouchTest] = useState(false);
+  const [buttonTest, setButtonTest] = useState(false);
+  const [microphoneTest, setMicrophoneTest] = useState(false);
+  const [sensorTest, setSensorTest] = useState(false);
+  const [cameraTest, setCameraTest] = useState(false);
 
   // Résultats des tests
   const [diagnosticResults, setDiagnosticResults] = useState<
@@ -165,9 +173,9 @@ export default function HomeScreen() {
       }
     },
 
-    async get_device_info(): Promise<DeviceInfo> {
+    async get_device_info(): Promise<DeviceInfoReport> {
       const { width, height } = Dimensions.get('screen');
-      const info: DeviceInfo = {
+      const info: DeviceInfoReport = {
         brand: Device.brand ?? null,
         manufacturer: Device.manufacturer ?? 'unknown',
         modelName: Device.modelName ?? null,
@@ -207,21 +215,27 @@ export default function HomeScreen() {
           break;
         case 4:
           nextDiagStep = 'display_grid';
+          setDisplayColorTest(nextStep?.success || false);
           break;
         case 5:
           nextDiagStep = 'button_test';
+          setTouchTest(nextStep?.success || false);
           break;
         case 6:
           nextDiagStep = 'microphone_test';
+          setButtonTest(nextStep?.success || false);
           break;
         case 7:
           nextDiagStep = 'sensor_test';
+          setMicrophoneTest(nextStep?.success || false);
           break;
         case 8:
           nextDiagStep = 'camera_test'; //'camera_test';
+          setSensorTest(nextStep?.success || false);
           break;
         case 9:
           nextDiagStep = 'summary';
+          setCameraTest(nextStep?.success || false);
           break;
       }
 
@@ -376,6 +390,18 @@ export default function HomeScreen() {
   // Démarrage du diagnostic
   const handleStartDiagnostic = async () => {
     console.log('🚀 Starting diagnostic with voice mode...');
+
+    // init val
+    setDisplayColorTest(false);
+    setTouchTest(false);
+    setGridTestCompleted(Array(TOTAL_CELLS).fill(false));
+    setButtonTest(false);
+    setMicrophoneTest(false);
+    setSensorTest(false);
+    setCameraTest(false);
+    setFrontFaceDetected(false);
+    setBackFaceDetected(false);
+
     setVoiceModeEnabled(true);
     setShowDiagnosticFlow(true);
     setIsRunning(true);
@@ -433,6 +459,59 @@ export default function HomeScreen() {
             os_version: deviceInfo?.osVersion,
             os_name: deviceInfo?.osName,
             api_level: deviceInfo?.platformApiLevel,
+            brand: DeviceInfo.getBrand(),
+            device_id: DeviceInfo.getDeviceId(),
+            system_name: DeviceInfo.getSystemName(),
+            system_version: DeviceInfo.getSystemVersion(),
+            base_os: await DeviceInfo.getBaseOs(),
+            build_id: await DeviceInfo.getBuildId(),
+            bootloader: await DeviceInfo.getBootloader(),
+            codename: await DeviceInfo.getCodename(),
+            incremental: await DeviceInfo.getIncremental(),
+            security_patch: await DeviceInfo.getSecurityPatch(),
+            hardware: await DeviceInfo.getHardware(),
+            host: await DeviceInfo.getHost(),
+            product: await DeviceInfo.getProduct(),
+            type: await DeviceInfo.getType(),
+            tags: await DeviceInfo.getTags(),
+            is_emulator: await DeviceInfo.isEmulator(),
+            is_tablet: DeviceInfo.isTablet(),
+            is_low_ram_device: DeviceInfo.isLowRamDevice(),
+            unique_id: await DeviceInfo.getUniqueId(),
+            android_id: await DeviceInfo.getAndroidId(),
+            serial_number: await DeviceInfo.getSerialNumber(),
+            readable_version: DeviceInfo.getReadableVersion(),
+            build_number: DeviceInfo.getBuildNumber(),
+            bundle_id: DeviceInfo.getBundleId(),
+            install_referrer: await DeviceInfo.getInstallReferrer(),
+            installer_package_name: await DeviceInfo.getInstallerPackageName(),
+            first_install_time: await DeviceInfo.getFirstInstallTime(),
+            last_update_time: await DeviceInfo.getLastUpdateTime(),
+            power_state: await DeviceInfo.getPowerState(),
+            total_memory: await DeviceInfo.getTotalMemory(),
+            max_memory: await DeviceInfo.getMaxMemory(),
+            used_memory: await DeviceInfo.getUsedMemory(),
+            total_disk_capacity: await DeviceInfo.getTotalDiskCapacity(),
+            free_disk_storage: await DeviceInfo.getFreeDiskStorage(),
+            is_battery_charging: await DeviceInfo.isBatteryCharging(),
+            battery_level: await DeviceInfo.getBatteryLevel(),
+            is_airplane_mode: await DeviceInfo.isAirplaneMode(),
+            ip_address: await DeviceInfo.getIpAddress(),
+            mac_address: await DeviceInfo.getMacAddress(),
+            screen_resolution: deviceInfo?.screenResolution,
+            font_scale: await DeviceInfo.getFontScale(),
+            supported_abis: await DeviceInfo.supportedAbis(),
+            supported_32_bit_abis: await DeviceInfo.supported32BitAbis(),
+            supported_64_bit_abis: await DeviceInfo.supported64BitAbis(),
+            display_color_test: displayColorTest,
+            touch_test: touchTest,
+            touch_test_progress: gridTestCompleted.filter(Boolean).length,
+            button_test: buttonTest,
+            microphone_test: microphoneTest,
+            sensor_test: sensorTest,
+            camera_test: cameraTest,
+            camera_front_face_detected: frontFaceDetected,
+            camera_back_face_detected: backFaceDetected,
           },
         ])
         .select()
