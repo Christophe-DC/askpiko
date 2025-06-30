@@ -360,7 +360,7 @@ const CameraDiagnostic = ({
                   setFaceDetected(false);
                 }}
               >
-                <Text style={styles.buttonText}>Start back camera</Text>
+                <Text style={styles.buttonText}>Start front camera</Text>
               </TouchableOpacity>
             )}
           </View>
